@@ -12,7 +12,6 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-green-50/30">
       <Sidebar />
 
-      {/* Top bar */}
       <header
         className={cn(
           "sticky top-0 z-30 flex h-16 items-center justify-between border-b border-emerald-100 bg-white/90 px-6 backdrop-blur-sm transition-all duration-300",
@@ -48,7 +47,6 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Content */}
       <main className={cn("p-6 transition-all duration-300", open ? "ml-64" : "ml-16")}>
         {children}
       </main>

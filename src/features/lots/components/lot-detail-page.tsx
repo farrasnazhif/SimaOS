@@ -6,7 +6,6 @@ import ZoneAssignment from "./zone-assignment";
 import LotImageUpload from "./lot-image-upload";
 import KnowledgeNoteForm from "@/features/knowledge/components/knowledge-note-form";
 import KnowledgeNotesList from "@/features/knowledge/components/knowledge-notes-list";
-import AppShell from "@/components/ui/app-shell";
 import Link from "next/link";
 
 const statusColors: Record<string, string> = {
@@ -21,18 +20,17 @@ export default function LotDetailPage({ lotId }: { lotId: string }) {
   const { data: lot, isLoading, error } = useLotDetailQuery(lotId);
 
   if (isLoading) {
-    return <AppShell><div className="text-zinc-400">Loading...</div></AppShell>;
+    return <div className="text-zinc-400">Loading...</div>;
   }
   if (error || !lot) {
-    return <AppShell><div className="text-red-500">Lot not found.</div></AppShell>;
+    return <div className="text-red-500">Lot not found.</div>;
   }
 
   const inspection = lot.qc_inspections?.[0];
   const statusColor = statusColors[lot.status] ?? statusColors.arriving;
 
   return (
-    <AppShell>
-      <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6">
         {/* Breadcrumb */}
         <nav className="text-xs text-zinc-500">
           <Link href="/dashboard" className="hover:text-emerald-700">Dashboard</Link>
@@ -153,6 +151,5 @@ export default function LotDetailPage({ lotId }: { lotId: string }) {
           )}
         </section>
       </div>
-    </AppShell>
   );
 }
