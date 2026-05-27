@@ -152,7 +152,7 @@ export default function NewBatchEntryPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 px-4 py-8 md:px-6 lg:px-10">
+    <main className="px-4 py-8 md:px-6 lg:px-10">
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
