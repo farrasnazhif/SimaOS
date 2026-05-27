@@ -22,7 +22,7 @@ function Section({
 
 export default function InputSandboxPage() {
   return (
-    <main className="min-h-screen py-16 flex flex-col items-center  text-black bg-white">
+    <main className="min-h-screen py-16 flex flex-col items-center  text-black bg-gradient-to-br from-emerald-50 via-white to-green-50">
       <div className="text-center space-y-3">
         <h1 className="text-4xl font-semibold text-black">
           SimaOS Input Sandbox

@@ -96,7 +96,7 @@ function IconButtonGroup({
 
 export default function ButtonSandboxPage() {
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center text-center py-16 text-black">
+    <main className="min-h-screen flex flex-col justify-center items-center text-center py-16 text-black bg-gradient-to-br from-emerald-50 via-white to-green-50">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold text-black">SimaOS Button Sandbox</h1>
 
