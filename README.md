@@ -19,3 +19,10 @@ pnpm dev
 ```
 
 run on your localhost
+
+## Environtment Variables
+
+Copy `.env.example` to `.env.local` and fill:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
