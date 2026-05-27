@@ -1,6 +1,7 @@
 "use client";
 
-import { useLotsQuery, Lot } from "../queries/lots-queries";
+import Link from "next/link";
+import { useLotsQuery } from "../queries/lots-queries";
 
 const statusConfig: Record<string, { label: string; color: string }> = {
   approved: {
@@ -103,7 +104,9 @@ export default function IncomingLotsTable() {
                 className="transition-colors hover:bg-zinc-800/40"
               >
                 <td className="px-6 py-4 font-mono text-sm font-bold text-blue-400">
-                  {lot.lot_number}
+                  <Link href={`/lots/${lot.id}`} className="hover:underline">
+                    {lot.lot_number}
+                  </Link>
                 </td>
                 <td className="px-6 py-4 text-sm font-medium text-zinc-200">
                   {lot.material_name}
