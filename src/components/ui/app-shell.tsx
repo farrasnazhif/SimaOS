@@ -1,15 +1,24 @@
 "use client";
 
 import Sidebar from "@/components/ui/sidebar";
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar-context";
 import { Search, Bell, Workflow, UserCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export default function AppShell({ children }: { children: React.ReactNode }) {
+function AppShellInner({ children }: { children: React.ReactNode }) {
+  const { open } = useSidebar();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-green-50/30">
       <Sidebar />
 
       {/* Top bar */}
-      <header className="sticky top-0 z-30 ml-64 flex h-16 items-center justify-between border-b border-emerald-100 bg-white/90 px-6 backdrop-blur-sm">
+      <header
+        className={cn(
+          "sticky top-0 z-30 flex h-16 items-center justify-between border-b border-emerald-100 bg-white/90 px-6 backdrop-blur-sm transition-all duration-300",
+          open ? "ml-64" : "ml-16",
+        )}
+      >
         <div className="flex items-center gap-6">
           <h2 className="text-base font-bold text-zinc-800">SimaOS Manufacturing</h2>
           <div className="relative w-80">
@@ -40,7 +49,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Content */}
-      <main className="ml-64 p-6">{children}</main>
+      <main className={cn("p-6 transition-all duration-300", open ? "ml-64" : "ml-16")}>
+        {children}
+      </main>
     </div>
+  );
+}
+
+export default function AppShell({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider>
+      <AppShellInner>{children}</AppShellInner>
+    </SidebarProvider>
   );
 }
