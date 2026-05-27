@@ -17,16 +17,13 @@ export default function QcDecisionForm({ lotId, inspectionId }: { lotId: string;
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error("Not authenticated");
 
-      const { error: qcError } = await (supabase
-        .from("qc_inspections") as any)
+      const { error: qcError } = await (supabase.from("qc_inspections") as any)
         .update({ human_decision: decision, human_notes: notes || null })
         .eq("id", inspectionId);
       if (qcError) throw qcError;
 
-      const newStatus = decision === "approved" ? "approved" : "rejected";
-      const { error: lotError } = await (supabase
-        .from("lots") as any)
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
+      const { error: lotError } = await (supabase.from("lots") as any)
+        .update({ status: decision === "approved" ? "approved" : "rejected", updated_at: new Date().toISOString() })
         .eq("id", lotId);
       if (lotError) throw lotError;
 
@@ -54,13 +51,13 @@ export default function QcDecisionForm({ lotId, inspectionId }: { lotId: string;
   }
 
   return (
-    <div className="space-y-3 rounded border border-zinc-700/50 bg-zinc-800/50 p-4">
+    <div className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
       <p className="text-xs font-bold uppercase text-zinc-500">Human Review Required</p>
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         placeholder="Optional notes..."
-        className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none"
+        className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:border-emerald-400 focus:outline-none"
         rows={2}
       />
       <div className="flex gap-3">

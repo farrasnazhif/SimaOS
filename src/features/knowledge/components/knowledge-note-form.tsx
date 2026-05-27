@@ -22,12 +22,12 @@ export default function KnowledgeNoteForm({ lotId, materialName }: { lotId: stri
   }
 
   return (
-    <div className="space-y-3 rounded border border-zinc-700/50 bg-zinc-800/50 p-4">
+    <div className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
       <p className="text-xs font-bold uppercase text-zinc-500">Add Knowledge Note</p>
       <select
         value={noteType}
         onChange={(e) => setNoteType(e.target.value)}
-        className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-200 focus:border-blue-500 focus:outline-none"
+        className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 focus:border-emerald-400 focus:outline-none"
       >
         {noteTypes.map((t) => (
           <option key={t} value={t}>{t.replace("_", " ")}</option>
@@ -37,7 +37,7 @@ export default function KnowledgeNoteForm({ lotId, materialName }: { lotId: stri
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Share your expertise..."
-        className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none"
+        className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:border-emerald-400 focus:outline-none"
         rows={3}
       />
       <Button variant="primary" size="sm" onClick={handleSubmit} isLoading={mutation.isPending}>

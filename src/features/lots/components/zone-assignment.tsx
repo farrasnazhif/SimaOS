@@ -19,19 +19,17 @@ export default function ZoneAssignment({ lotId }: { lotId: string }) {
   function handleAssign() {
     if (!zone) return;
     toast.promise(mutation.mutateAsync({ lotId, zone }), {
-      loading: "Assigning zone...",
-      success: "Zone assigned.",
-      error: "Failed to assign zone.",
+      loading: "Assigning zone...", success: "Zone assigned.", error: "Failed to assign zone.",
     });
   }
 
   return (
-    <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-5 space-y-3">
-      <h2 className="text-lg font-semibold text-zinc-100">Assign Warehouse Zone</h2>
+    <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3">
+      <h2 className="text-lg font-semibold text-zinc-900">Assign Warehouse Zone</h2>
       <select
         value={zone}
         onChange={(e) => setZone(e.target.value)}
-        className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-200 focus:border-blue-500 focus:outline-none"
+        className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-700 focus:border-emerald-400 focus:outline-none"
       >
         <option value="">Select zone...</option>
         {zones.map((z) => (
