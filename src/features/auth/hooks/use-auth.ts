@@ -1,6 +1,9 @@
 "use client";
 
-import { useAuthSessionQuery, useUserProfileQuery } from "./auth-queries";
+import {
+  useAuthSessionQuery,
+  useUserProfileQuery,
+} from "../queries/auth-queries";
 
 export function useAuth() {
   const sessionQuery = useAuthSessionQuery();
@@ -16,4 +19,3 @@ export function useAuth() {
     profileQuery,
   };
 }
-

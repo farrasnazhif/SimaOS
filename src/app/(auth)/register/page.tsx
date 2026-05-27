@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import Input from "@/components/ui/input";
 import Button from "@/components/ui/buttons/button";
 
-import { useRegisterMutation } from "@/features/auth/auth-queries";
+import { useRegisterMutation } from "@/features/auth/queries/auth-queries";
 
 type RegisterFormValues = {
   email: string;

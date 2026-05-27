@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/features/auth/use-auth";
-import { useLogoutMutation } from "@/features/auth/auth-queries";
+import { useAuth } from "@/features/auth/hooks/use-auth";
+import { useLogoutMutation } from "@/features/auth/queries/auth-queries";
 
 export default function ProfilePage() {
   const router = useRouter();

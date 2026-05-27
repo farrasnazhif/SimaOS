@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 import Input from "@/components/ui/input";
 import Button from "@/components/ui/buttons/button";
-import { useLoginMutation } from "@/features/auth/auth-queries";
+import { useLoginMutation } from "@/features/auth/queries/auth-queries";
 
 type LoginFormValues = {
   email: string;
