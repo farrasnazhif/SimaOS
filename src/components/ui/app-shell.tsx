@@ -19,7 +19,9 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
         )}
       >
         <div className="flex items-center gap-6">
-          <h2 className="text-base font-bold text-zinc-800">SimaOS Manufacturing</h2>
+          <h2 className="text-base font-bold text-zinc-800">
+            SimaOS Manufacturing
+          </h2>
           <div className="relative w-80">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
             <input
@@ -39,15 +41,24 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
           </button>
           <div className="flex items-center gap-2 border-l border-zinc-200 pl-4">
             <div className="text-right">
-              <p className="text-sm font-semibold text-zinc-800 leading-none">Operator</p>
-              <p className="text-[10px] uppercase tracking-tight text-zinc-400">Senior Operator</p>
+              <p className="text-sm font-semibold text-zinc-800 leading-none">
+                Operator
+              </p>
+              <p className="text-[10px] uppercase tracking-tight text-zinc-400">
+                Senior Operator
+              </p>
             </div>
             <UserCircle className="size-8 text-zinc-300" />
           </div>
         </div>
       </header>
 
-      <main className={cn("p-6 transition-all duration-300", open ? "ml-64" : "ml-16")}>
+      <main
+        className={cn(
+          "p-6 transition-all duration-300",
+          open ? "ml-64" : "ml-16",
+        )}
+      >
         {children}
       </main>
     </div>

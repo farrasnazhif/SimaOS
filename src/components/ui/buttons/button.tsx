@@ -2,7 +2,7 @@ import { LoaderCircle, LucideProps } from "lucide-react";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-type ButtonVariant = "primary" | "secondary" | "gradient-green";
+type ButtonVariant = "primary" | "secondary" | "gradient-green" | "destructive";
 
 type ButtonSize = "sm" | "base" | "lg";
 
@@ -77,6 +77,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               "bg-gradient-to-b from-emerald-500 to-emerald-700 text-white",
               "hover:from-emerald-600 hover:to-emerald-800",
               "shadow-sm shadow-emerald-500/25",
+            ],
+
+            // Destructive
+            variant === "destructive" && [
+              "bg-red-600 text-white",
+              "hover:bg-red-700",
+              "shadow-sm shadow-red-500/20",
             ],
           ],
 

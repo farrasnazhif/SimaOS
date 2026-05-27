@@ -25,7 +25,7 @@ function Section({
 function ButtonGroup({
   variant,
 }: {
-  variant: "primary" | "secondary" | "gradient-green";
+  variant: "primary" | "secondary" | "gradient-green" | "destructive";
 }) {
   return (
     <div className="flex flex-wrap justify-center items-center gap-4">
@@ -55,7 +55,7 @@ function ButtonGroup({
 function ButtonWithIconGroup({
   variant,
 }: {
-  variant: "primary" | "secondary" | "gradient-green";
+  variant: "primary" | "secondary" | "gradient-green" | "destructive";
 }) {
   return (
     <div className="flex flex-wrap justify-center items-center gap-4">
@@ -77,7 +77,7 @@ function ButtonWithIconGroup({
 function IconButtonGroup({
   variant,
 }: {
-  variant: "primary" | "secondary" | "gradient-green";
+  variant: "primary" | "secondary" | "gradient-green" | "destructive";
 }) {
   return (
     <div className="flex items-center justify-center gap-4">
@@ -111,6 +111,8 @@ export default function ButtonSandboxPage() {
         <ButtonGroup variant="secondary" />
 
         <ButtonGroup variant="gradient-green" />
+
+        <ButtonGroup variant="destructive" />
       </Section>
 
       <Section title="Buttons – With Icons">
@@ -119,6 +121,8 @@ export default function ButtonSandboxPage() {
         <ButtonWithIconGroup variant="secondary" />
 
         <ButtonWithIconGroup variant="gradient-green" />
+
+        <ButtonWithIconGroup variant="destructive" />
       </Section>
 
       <Section title="Icon Buttons">
@@ -127,6 +131,8 @@ export default function ButtonSandboxPage() {
         <IconButtonGroup variant="secondary" />
 
         <IconButtonGroup variant="gradient-green" />
+
+        <IconButtonGroup variant="destructive" />
       </Section>
     </main>
   );

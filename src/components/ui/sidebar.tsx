@@ -17,16 +17,46 @@ import {
 } from "lucide-react";
 import { useLogoutMutation } from "@/features/auth/queries/auth-queries";
 import { useSidebar } from "./sidebar-context";
+import SimaOSLogo from "./logo";
+import Button from "./buttons/button";
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/batches/new", label: "Live Batches", icon: Factory },
-  { href: "/dashboard", label: "Traceability", icon: GitBranch },
-  { href: "/dashboard", label: "Quality Control", icon: ShieldCheck },
-  { href: "/dashboard", label: "Maintenance", icon: Wrench },
-  { href: "/dashboard", label: "System Settings", icon: Settings },
+const navSections = [
+  {
+    title: "MAIN MENU",
+    items: [
+      {
+        href: "/dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+      },
+      {
+        href: "/batches/new",
+        label: "Inventory",
+        icon: Factory,
+      },
+      {
+        href: "/traceability",
+        label: "Traceability",
+        icon: GitBranch,
+      },
+    ],
+  },
+  {
+    title: "OPERATIONS",
+    items: [
+      {
+        href: "/quality-control",
+        label: "Quality Control",
+        icon: ShieldCheck,
+      },
+      {
+        href: "/maintenance",
+        label: "Maintenance",
+        icon: Wrench,
+      },
+    ],
+  },
 ];
-
 export default function Sidebar() {
   const pathname = usePathname();
   const logoutMutation = useLogoutMutation();
@@ -36,84 +66,117 @@ export default function Sidebar() {
     <aside
       className={cn(
         "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-emerald-100 bg-white transition-all duration-300",
-        open ? "w-64" : "w-16",
+        open ? "w-64" : "w-20",
       )}
     >
       {/* Header */}
-      <div className={cn("flex items-center justify-between px-4 py-5", !open && "justify-center")}>
+      <div
+        className={cn(
+          "flex items-center justify-between px-4 py-5",
+          !open && "justify-center",
+        )}
+      >
         {open && (
-          <div className="px-2">
-            <h1 className="text-xl font-bold text-emerald-700">SimaOS</h1>
-            <p className="text-[11px] font-medium uppercase tracking-widest text-zinc-400">
-              Precision Manufacturing
-            </p>
+          <div className="px-3">
+            <SimaOSLogo />
           </div>
         )}
         <button
           onClick={toggle}
-          className="rounded-lg p-1.5 text-zinc-400 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+          className="rounded-lg p-1.5  hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
         >
-          {open ? <PanelLeftClose className="size-5" /> : <PanelLeftOpen className="size-5" />}
+          {open ? (
+            <PanelLeftClose className="size-5" />
+          ) : (
+            <PanelLeftOpen className="size-5" />
+          )}
         </button>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 space-y-0.5 px-2">
-        {navItems.map((item) => {
-          const isActive = item.href === "/dashboard"
-            ? pathname === "/dashboard"
-            : pathname.startsWith(item.href) && item.href !== "/dashboard";
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.label}
-              href={item.href}
-              title={!open ? item.label : undefined}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
-                open ? "" : "justify-center",
-                isActive
-                  ? "bg-emerald-50 font-semibold text-emerald-700"
-                  : "font-medium text-zinc-500 hover:bg-emerald-50/50 hover:text-emerald-700",
+      <nav className="flex-1 overflow-y-auto px-4">
+        <div className="space-y-6">
+          {navSections.map((section) => (
+            <div key={section.title}>
+              {open ? (
+                <div className="px-3 pb-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider ">
+                    {section.title}
+                  </p>
+                </div>
+              ) : (
+                <div className="flex justify-center pb-5">
+                  <div className="h-[3px] w-8 rounded-full bg-zinc-300" />
+                </div>
               )}
-            >
-              <Icon className="size-[18px] shrink-0" />
-              {open && <span>{item.label}</span>}
-            </Link>
-          );
-        })}
+
+              <div className="space-y-2">
+                {section.items.map((item) => {
+                  const isActive =
+                    pathname === item.href ||
+                    (item.href !== "/dashboard" &&
+                      pathname.startsWith(item.href));
+
+                  const Icon = item.icon;
+
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      title={!open ? item.label : undefined}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-3 text-sm transition-colors",
+                        open ? "" : "justify-center px-3 py-3",
+                        isActive
+                          ? "bg-[#0E8752] font-semibold text-white"
+                          : "font-medium text-zinc-500 hover:bg-emerald-100/80 hover:text-emerald-700",
+                      )}
+                    >
+                      <Icon className="size-[18px] shrink-0" />
+
+                      {open && <span>{item.label}</span>}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
       </nav>
 
       {/* Footer */}
       <div className="border-t border-emerald-100 p-3">
-        {open && (
-          <button className="mb-3 w-full px-3 text-left text-[11px] font-bold uppercase tracking-widest text-emerald-600">
-            Switch Role: Manager
-          </button>
-        )}
-        <div className="space-y-0.5">
+        <div className="space-y-0">
+          <Link
+            href="#"
+            title={!open ? "Settings" : undefined}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700",
+              !open && "justify-center",
+            )}
+          >
+            <Settings className="size-4 shrink-0" />
+            {open && <span>Settings</span>}
+          </Link>
           <Link
             href="#"
             title={!open ? "Support" : undefined}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700",
+              "flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700",
               !open && "justify-center",
             )}
           >
             <HelpCircle className="size-4 shrink-0" />
             {open && <span>Support</span>}
           </Link>
-          <button
+          {/* <Button
+            variant="destructive"
             onClick={() => logoutMutation.mutate()}
             title={!open ? "Log Out" : undefined}
-            className={cn(
-              "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-zinc-500 hover:bg-red-50 hover:text-red-600",
-              !open && "justify-center",
-            )}
+            leftIcon={LogOut}
+            className="w-full"
           >
-            <LogOut className="size-4 shrink-0" />
             {open && <span>Log Out</span>}
-          </button>
+          </Button> */}
         </div>
       </div>
     </aside>

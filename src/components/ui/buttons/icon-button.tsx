@@ -6,7 +6,11 @@ import { cn } from "@/lib/utils";
 
 type LucideIconType = React.ComponentType<LucideProps>;
 
-type IconButtonVariant = "primary" | "secondary" | "gradient-green";
+type IconButtonVariant =
+  | "primary"
+  | "secondary"
+  | "gradient-green"
+  | "destructive";
 
 type IconButtonSize = "sm" | "base" | "lg";
 
@@ -84,6 +88,13 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
               "bg-gradient-to-b from-emerald-500 to-emerald-700 text-white",
               "hover:from-emerald-600 hover:to-emerald-800",
               "shadow-sm shadow-emerald-500/25",
+            ],
+
+            // Destructive
+            variant === "destructive" && [
+              "bg-red-600 text-white",
+              "hover:bg-red-700",
+              "shadow-sm shadow-red-500/20",
             ],
           ],
 
