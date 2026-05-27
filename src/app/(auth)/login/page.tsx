@@ -36,7 +36,9 @@ export default function LoginPage() {
     try {
       await login.mutateAsync(data);
 
-      toast.success("Signed in successfully!");
+      toast.success("Signed in successfully!", {
+        id: toastId,
+      });
 
       router.push("/dashboard");
     } catch (error) {

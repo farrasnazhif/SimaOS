@@ -49,7 +49,9 @@ export default function RegisterPage() {
         password: data.password,
       });
 
-      toast.success("Registered successfully!");
+      toast.success("Registered successfully!", {
+        id: toastId,
+      });
 
       router.push("/dashboard");
     } catch (error) {
