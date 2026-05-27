@@ -22,13 +22,13 @@ function Section({
 
 export default function InputSandboxPage() {
   return (
-    <main className="min-h-screen ideast-padding py-16 flex flex-col items-center gap-14 text-black bg-white">
+    <main className="min-h-screen py-16 flex flex-col items-center  text-black bg-white">
       <div className="text-center space-y-3">
-        <h1 className="text-4xl font-semibold bg-linear-to-r from-gray-900 to-emerald-700 bg-clip-text text-transparent">
+        <h1 className="text-4xl font-semibold text-black">
           SimaOS Input Sandbox
         </h1>
 
-        <p className="text-gray-400">
+        <p className="text-gray-800">
           Preview custom SimaOS input components and validation states.
         </p>
       </div>
