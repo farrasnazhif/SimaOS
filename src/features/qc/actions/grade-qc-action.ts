@@ -2,14 +2,7 @@
 
 import "server-only";
 
-import { InspectionAnalysis } from "../queries/qc-queries";
-
-type GradeRequestBody = {
-  imageDataUrl: string;
-  materialType: string;
-  supplier: string;
-  quantityKg: number;
-};
+import { GradeQcInput, InspectionAnalysis } from "../types/qc-types";
 
 function extractOutputText(payload: unknown) {
   if (
@@ -94,7 +87,7 @@ function normalizeAnalysis(payload: unknown): InspectionAnalysis {
 }
 
 export async function gradeQcAction(
-  input: GradeRequestBody,
+  input: GradeQcInput,
 ): Promise<InspectionAnalysis> {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error(

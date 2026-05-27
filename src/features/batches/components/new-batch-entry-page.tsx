@@ -15,10 +15,8 @@ import {
 import Button from "@/components/ui/buttons/button";
 import Input from "@/components/ui/input";
 import Select from "@/components/ui/select";
-import {
-  InspectionAnalysis,
-  useGradeQcMutation,
-} from "@/features/qc/queries/qc-queries";
+import { useQc } from "@/features/qc/hooks/use-qc";
+import { InspectionAnalysis } from "@/features/qc/types/qc-types";
 import { cn } from "@/lib/utils";
 
 type BatchIntakeFormValues = {
@@ -29,16 +27,16 @@ type BatchIntakeFormValues = {
 };
 
 const materialOptions = [
-  { label: "Ginger Root", value: "ginger-root" },
-  { label: "Turmeric", value: "turmeric" },
-  { label: "Cinnamon Bark", value: "cinnamon-bark" },
-  { label: "Clove Buds", value: "clove-buds" },
+  { label: "Ginger Root", value: "Ginger Root" },
+  { label: "Turmeric", value: "Turmeric" },
+  { label: "Cinnamon Bark", value: "Cinnamon Bark" },
+  { label: "Clove Buds", value: "Clove Buds" },
 ];
 
 const supplierOptions = [
-  { label: "Sima Farmer Collective", value: "sima-farmer-collective" },
-  { label: "Nusantara Spice Co.", value: "nusantara-spice-co" },
-  { label: "Java Harvest Partners", value: "java-harvest-partners" },
+  { label: "Sima Farmer Collective", value: "Sima Farmer Collective" },
+  { label: "Nusantara Spice Co.", value: "Nusantara Spice Co." },
+  { label: "Java Harvest Partners", value: "Java Harvest Partners" },
 ];
 
 const uploadHighlights = ["Min 4K inspection photo", "Macro lens recommended"];
@@ -71,7 +69,7 @@ export default function NewBatchEntryPage() {
   const [analysis, setAnalysis] = React.useState<InspectionAnalysis | null>(
     null,
   );
-  const gradeQcMutation = useGradeQcMutation();
+  const { createBatchWithQc, isProcessing } = useQc();
 
   const {
     register,
@@ -143,14 +141,14 @@ export default function NewBatchEntryPage() {
     }
 
     const imageDataUrl = await fileToDataUrl(data.inspectionPhoto);
-    const nextAnalysis = await gradeQcMutation.mutateAsync({
+    const result = await createBatchWithQc({
       materialType: data.materialType,
       supplier: data.supplier,
       quantityKg: Number(data.quantityKg),
       imageDataUrl,
     });
 
-    setAnalysis(nextAnalysis);
+    setAnalysis(result.analysis);
   }
 
   return (
@@ -205,8 +203,8 @@ export default function NewBatchEntryPage() {
                   const promise = onSubmit(data);
 
                   toast.promise(promise, {
-                    loading: "Running OpenAI inspection reasoning...",
-                    success: "Inspection reasoning completed.",
+                    loading: "Running OpenAI inspection reasoning and saving batch...",
+                    success: "Batch saved to Supabase successfully.",
                     error: (error) =>
                       error instanceof Error
                         ? error.message
@@ -277,7 +275,7 @@ export default function NewBatchEntryPage() {
                   type="submit"
                   variant="primary"
                   size="lg"
-                  isLoading={isSubmitting || gradeQcMutation.isPending}
+                  isLoading={isSubmitting || isProcessing}
                   className="w-full rounded-2xl"
                   leftIcon={Sparkles}
                 >
@@ -369,7 +367,7 @@ export default function NewBatchEntryPage() {
 
                         <p className="text-base text-zinc-600">
                           Click to replace the image or continue to run AI QC
-                          reasoning.
+                          reasoning and save the intake to Supabase.
                         </p>
                       </div>
                     </>
@@ -447,7 +445,7 @@ export default function NewBatchEntryPage() {
                   </div>
 
                   <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
                       Recommendation
                     </div>
                     <p className="mt-2 text-sm leading-6 text-zinc-700">
