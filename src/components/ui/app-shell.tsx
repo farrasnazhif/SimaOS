@@ -2,11 +2,22 @@
 
 import Sidebar from "@/components/ui/sidebar";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar-context";
-import { Search, Bell, Workflow, UserCircle } from "lucide-react";
+import { Search, UserCircle, User, LogOut, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/features/auth/hooks/use-auth";
+import {
+  Dropdown,
+  DropdownContent,
+  DropdownDivider,
+  DropdownItem,
+  DropdownTrigger,
+} from "./dropdown";
+import { useLogoutMutation } from "@/features/auth/queries/auth-queries";
 
 function AppShellInner({ children }: { children: React.ReactNode }) {
+  const { profile } = useAuth();
   const { open } = useSidebar();
+  const logoutMutation = useLogoutMutation();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-green-50/30">
@@ -19,9 +30,6 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
         )}
       >
         <div className="flex items-center gap-6">
-          <h2 className="text-base font-bold text-zinc-800">
-            SimaOS Manufacturing
-          </h2>
           <div className="relative w-80">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
             <input
@@ -32,25 +40,46 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <button className="text-zinc-400 hover:text-emerald-600 transition-colors">
-            <Bell className="size-5" />
-          </button>
-          <button className="text-zinc-400 hover:text-emerald-600 transition-colors">
-            <Workflow className="size-5" />
-          </button>
-          <div className="flex items-center gap-2 border-l border-zinc-200 pl-4">
-            <div className="text-right">
-              <p className="text-sm font-semibold text-zinc-800 leading-none">
-                Operator
+        <Dropdown>
+          <DropdownTrigger className="flex items-center gap-3 border-l border-zinc-200 pl-4">
+            {/* <div className="text-right">
+              <p className="text-sm font-semibold text-zinc-800">
+                {profile?.email}
               </p>
-              <p className="text-[10px] uppercase tracking-tight text-zinc-400">
-                Senior Operator
+
+              <p className="text-xs text-zinc-500">Account</p>
+            </div> */}
+
+            <UserCircle className="size-7 " />
+
+            <ChevronDown className="size-4 " />
+          </DropdownTrigger>
+
+          <DropdownContent>
+            <div className="p-2">
+              <p className="truncate text-sm font-semibold text-zinc-900">
+                {profile?.email}
               </p>
+
+              <p className="text-xs text-zinc-500">SimaOS Account Role</p>
             </div>
-            <UserCircle className="size-8 text-zinc-300" />
-          </div>
-        </div>
+
+            <DropdownDivider />
+
+            <DropdownItem>
+              <User className="size-4" />
+              Profile
+            </DropdownItem>
+
+            <DropdownItem
+              className="text-red-600 hover:bg-red-50"
+              onClick={() => logoutMutation.mutate()}
+            >
+              <LogOut className="size-4" />
+              Log Out
+            </DropdownItem>
+          </DropdownContent>
+        </Dropdown>
       </header>
 
       <main

@@ -11,14 +11,11 @@ import {
   Wrench,
   Settings,
   HelpCircle,
-  LogOut,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
-import { useLogoutMutation } from "@/features/auth/queries/auth-queries";
 import { useSidebar } from "./sidebar-context";
 import SimaOSLogo from "./logo";
-import Button from "./buttons/button";
 
 const navSections = [
   {
@@ -59,7 +56,6 @@ const navSections = [
 ];
 export default function Sidebar() {
   const pathname = usePathname();
-  const logoutMutation = useLogoutMutation();
   const { open, toggle } = useSidebar();
 
   return (
