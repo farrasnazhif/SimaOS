@@ -145,6 +145,7 @@ export function useCreateBatchWithQcMutation() {
           ai_foreign_matter: analysis.foreignMatter,
           ai_recommendation: analysis.recommendation,
           ai_notes: analysis.notes,
+          ai_detections: analysis.detections,
           inspected_by: currentUser.id,
           inspected_at: inspectedAt,
         });
@@ -164,6 +165,27 @@ export function useCreateBatchWithQcMutation() {
 
       if (createBatchEventError) {
         throw createBatchEventError;
+      }
+
+      // Upload inspection image to storage and save to lot_images
+      const blob = await fetch(input.imageDataUrl).then((r) => r.blob());
+      const ext = blob.type.split("/")[1] || "jpg";
+      const path = `${createdLot.id}/${Date.now()}-inspection.${ext}`;
+      const { error: uploadError } = await (supabase as unknown as ReturnType<typeof getSupabaseBrowserClient>).storage
+        .from("lot-images")
+        .upload(path, blob);
+
+      if (!uploadError) {
+        const { data: urlData } = (supabase as unknown as ReturnType<typeof getSupabaseBrowserClient>).storage
+          .from("lot-images")
+          .getPublicUrl(path);
+
+        const lotImagesTable = supabase.from("lot_images") as unknown as SupabaseTableClient;
+        await lotImagesTable.insert({
+          lot_id: createdLot.id,
+          storage_url: urlData.publicUrl,
+          uploaded_by: currentUser.id,
+        });
       }
 
       return {

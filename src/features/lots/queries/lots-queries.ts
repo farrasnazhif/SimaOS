@@ -34,6 +34,7 @@ export type LotDetail = {
     ai_foreign_matter: boolean;
     ai_recommendation: string | null;
     ai_notes: string | null;
+    ai_detections: { label: string; x: number; y: number; width: number; height: number }[] | null;
     human_decision: string | null;
     human_notes: string | null;
     inspected_at: string;
@@ -82,7 +83,7 @@ export function useLotDetailQuery(id: string) {
         .select(`
           id, lot_number, material_name, material_type, quantity_kg, arrival_date, status, warehouse_zone, created_at,
           supplier:suppliers(name),
-          qc_inspections(id, ai_quality_score, ai_colour, ai_defects, ai_foreign_matter, ai_recommendation, ai_notes, human_decision, human_notes, inspected_at),
+          qc_inspections(id, ai_quality_score, ai_colour, ai_defects, ai_foreign_matter, ai_recommendation, ai_notes, ai_detections, human_decision, human_notes, inspected_at),
           batch_events(id, event_type, description, actor_name, created_at),
           lot_images(id, storage_url, uploaded_at)
         `)
@@ -137,6 +138,42 @@ export function useUploadLotImageMutation() {
     },
     onSuccess: (_, { lotId }) => {
       queryClient.invalidateQueries({ queryKey: lotsKeys.detail(lotId) });
+    },
+  });
+}
+
+export function useLotDecisionMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ lotId, inspectionId, decision }: { lotId: string; inspectionId: string; decision: "approved" | "rejected" | "revoked" }) => {
+      const supabase = getSupabaseBrowserClient();
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error("Not authenticated");
+
+      const newStatus = decision === "approved" ? "approved" : decision === "revoked" ? "in_qc" : "rejected";
+      const humanDecision = decision === "revoked" ? null : decision;
+
+      const { error: qcError } = await (supabase.from("qc_inspections") as any)
+        .update({ human_decision: humanDecision, human_notes: decision === "revoked" ? "Approval revoked" : null })
+        .eq("id", inspectionId);
+      if (qcError) throw qcError;
+
+      const { error: lotError } = await (supabase.from("lots") as any)
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq("id", lotId);
+      if (lotError) throw lotError;
+
+      await (supabase.from("batch_events") as any).insert({
+        lot_id: lotId,
+        event_type: decision === "revoked" ? "approval_revoked" : `human_${decision}`,
+        description: decision === "revoked" ? "Approval revoked by operator." : `Lot ${decision} by operator.`,
+        actor_id: userData.user.id,
+        actor_name: userData.user.email ?? "Operator",
+      });
+    },
+    onSuccess: (_, { lotId }) => {
+      queryClient.invalidateQueries({ queryKey: lotsKeys.detail(lotId) });
+      queryClient.invalidateQueries({ queryKey: lotsKeys.list });
     },
   });
 }

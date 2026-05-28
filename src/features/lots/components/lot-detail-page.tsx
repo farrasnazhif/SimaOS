@@ -1,250 +1,436 @@
 "use client";
 
 import { useLotDetailQuery } from "../queries/lots-queries";
-import QcDecisionForm from "@/features/qc/components/qc-decision-form";
-import ZoneAssignment from "./zone-assignment";
-import LotImageUpload from "./lot-image-upload";
-import KnowledgeNoteForm from "@/features/knowledge/components/knowledge-note-form";
-import KnowledgeNotesList from "@/features/knowledge/components/knowledge-notes-list";
+import { useLotDecisionMutation } from "../queries/lots-queries";
+import { Eye, Layers3, Search, SearchCheck } from "lucide-react";
+import { toast } from "sonner";
 import Link from "next/link";
+import Breadcrumb from "@/components/ui/breadcrumb";
+
+function StatusBadge({ status }: { status: string }) {
+  const map: Record<string, { bg: string; text: string; label: string }> = {
+    in_qc: { bg: "bg-amber-100", text: "text-amber-600", label: "Awaiting QC" },
+    approved: {
+      bg: "bg-emerald-100",
+      text: "text-emerald-600",
+      label: "Approved",
+    },
+    rejected: { bg: "bg-red-100", text: "text-red-600", label: "Rejected" },
+    in_production: {
+      bg: "bg-blue-100",
+      text: "text-blue-600",
+      label: "In Production",
+    },
+    arriving: { bg: "bg-zinc-100", text: "text-zinc-600", label: "Arriving" },
+  };
+  const s = map[status] ?? {
+    bg: "bg-zinc-100",
+    text: "text-zinc-600",
+    label: status,
+  };
+  return (
+    <div
+      className={`mt-2 inline-flex rounded-xl px-4 py-1.5 text-sm font-semibold ${s.bg} ${s.text}`}
+    >
+      {s.label}
+    </div>
+  );
+}
+
+function LotActions({
+  lotId,
+  status,
+  inspectionId,
+}: {
+  lotId: string;
+  status: string;
+  inspectionId?: string;
+}) {
+  const mutation = useLotDecisionMutation();
+
+  function handleAction(decision: "approved" | "rejected" | "revoked") {
+    toast.promise(
+      mutation.mutateAsync({ lotId, inspectionId: inspectionId!, decision }),
+      {
+        loading: "Processing...",
+        success:
+          decision === "revoked" ? "Approval revoked." : `Lot ${decision}.`,
+        error: "Action failed.",
+      },
+    );
+  }
+
+  if (!inspectionId) return null;
+
+  const hasDecision = status === "approved" || status === "rejected";
+
+  if (hasDecision) {
+    return (
+      <button
+        onClick={() => handleAction("revoked")}
+        disabled={mutation.isPending}
+        className="rounded-xl border border-amber-300 bg-amber-50 px-5 py-2.5 text-sm font-semibold text-amber-700 hover:bg-amber-100 disabled:opacity-50"
+      >
+        {status === "approved" ? "Revoke Approval" : "Revoke Rejection"}
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex gap-3">
+      <button
+        onClick={() => handleAction("approved")}
+        disabled={mutation.isPending}
+        className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+      >
+        Approve
+      </button>
+      <button
+        onClick={() => handleAction("rejected")}
+        disabled={mutation.isPending}
+        className="rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50"
+      >
+        Reject
+      </button>
+    </div>
+  );
+}
 
 export default function LotDetailPage({ lotId }: { lotId: string }) {
   const { data: lot, isLoading, error } = useLotDetailQuery(lotId);
 
   if (isLoading) {
-    return <div className="text-zinc-400">Loading...</div>;
+    return (
+      <div className="flex h-64 items-center justify-center text-zinc-400">
+        Loading...
+      </div>
+    );
   }
   if (error || !lot) {
-    return <div className="text-red-500">Lot not found.</div>;
+    return (
+      <div className="flex h-64 items-center justify-center text-red-500">
+        Lot not found.
+      </div>
+    );
   }
 
   const inspection = lot.qc_inspections?.[0];
-  const scoreOffset = inspection
-    ? 251.2 - (251.2 * inspection.ai_quality_score) / 100
-    : 251.2;
+  const score = inspection?.ai_quality_score ?? 0;
+
+  // For the circular score indicator - approximate with border trick
+  const scorePercent = Math.round((score / 100) * 360);
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-end justify-between">
+      <div className="space-y-5">
         <div>
-          <div className="mb-1 flex items-center gap-3">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-600">
-              Digital Batch Passport
-            </span>
-            {lot.status === "in_qc" && (
-              <span className="rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">
-                PENDING DECISION
-              </span>
-            )}
+          <Breadcrumb />
+
+          <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-zinc-900">
+                {lot.lot_number}
+              </h1>
+
+              <p className="mt-1 text-sm text-zinc-500">
+                {lot.material_name} ({lot.material_type})
+              </p>
+            </div>
+
+            <LotActions
+              lotId={lot.id}
+              status={lot.status}
+              inspectionId={inspection?.id}
+            />
           </div>
-          <h2 className="text-3xl font-bold tracking-tight text-zinc-900">{lot.lot_number}</h2>
-          <p className="flex items-center gap-1 text-sm text-zinc-500">
-            🌿 {lot.material_name} ({lot.material_type}) • Incoming Inspection
-          </p>
         </div>
-        {inspection && !inspection.human_decision && (
-          <div className="flex gap-3">
-            <QcDecisionForm lotId={lot.id} inspectionId={inspection.id} />
-          </div>
-        )}
       </div>
 
-      <div className="grid grid-cols-12 gap-4">
-        {/* Left Column */}
-        <div className="col-span-12 space-y-4 lg:col-span-8">
-          {/* Lot Specifications */}
-          <div className="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-6">
-            <div className="absolute left-0 top-0 h-full w-1 bg-emerald-500" />
-            <h3 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-zinc-400">
-              Lot Specifications
-            </h3>
-            <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-12 gap-6">
+        {/* Left section */}
+        <div className="col-span-12 space-y-6 lg:col-span-8">
+          {/* Lot Specification */}
+          <section className="rounded-[28px] border border-emerald-100 bg-white p-8">
+            <h2 className="text-[20px] font-semibold text-zinc-900">
+              Lot Specification
+            </h2>
+
+            <div className="mt-8 grid grid-cols-3 gap-y-10">
               <div>
-                <p className="text-[11px] uppercase tracking-tight text-zinc-400">Supplier</p>
-                <p className="font-mono text-sm font-medium text-zinc-800">{lot.supplier?.name ?? "—"}</p>
+                <p className="text-sm text-zinc-500">Supplier</p>
+                <h3 className="mt-1 text-[18px] font-semibold text-zinc-900">
+                  {lot.supplier?.name ?? "—"}
+                </h3>
               </div>
+
               <div>
-                <p className="text-[11px] uppercase tracking-tight text-zinc-400">Weight</p>
-                <p className="font-mono text-sm font-medium text-zinc-800">{lot.quantity_kg} kg</p>
+                <p className="text-sm text-zinc-500">Weight</p>
+                <h3 className="mt-1 text-[18px] font-semibold text-zinc-900">
+                  {lot.quantity_kg} kg
+                </h3>
               </div>
+
               <div>
-                <p className="text-[11px] uppercase tracking-tight text-zinc-400">Receipt Date</p>
-                <p className="font-mono text-sm font-medium text-zinc-800">{lot.arrival_date}</p>
+                <p className="text-sm text-zinc-500">Status</p>
+                <StatusBadge status={lot.status} />
               </div>
+
               <div>
-                <p className="text-[11px] uppercase tracking-tight text-zinc-400">Warehouse Zone</p>
-                <p className="font-mono text-sm font-medium text-zinc-800">{lot.warehouse_zone ?? "Unassigned"}</p>
+                <p className="text-sm text-zinc-500">Arrival Date</p>
+                <h3 className="mt-1 text-[18px] font-semibold text-zinc-900">
+                  {new Date(lot.arrival_date).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </h3>
               </div>
+
               <div>
-                <p className="text-[11px] uppercase tracking-tight text-zinc-400">Status</p>
-                <p className="font-mono text-sm font-medium text-zinc-800 capitalize">{lot.status.replace("_", " ")}</p>
+                <p className="text-sm text-zinc-500">Warehouse Zone</p>
+                <h3 className="mt-1 text-[18px] font-semibold text-zinc-900">
+                  {lot.warehouse_zone ?? "Unassigned"}
+                </h3>
               </div>
+
               <div>
-                <p className="text-[11px] uppercase tracking-tight text-zinc-400">Created</p>
-                <p className="font-mono text-sm font-medium text-zinc-800">{new Date(lot.created_at).toLocaleDateString()}</p>
+                <p className="text-sm text-zinc-500">Material Type</p>
+                <h3 className="mt-1 text-[18px] font-semibold text-zinc-900">
+                  {lot.material_type}
+                </h3>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* AI QC Assessment */}
+          {/* QC Score */}
           {inspection && (
-            <div className="grid grid-cols-2 gap-4">
-              {/* Score Card */}
-              <div className="flex items-center gap-6 rounded-xl border border-emerald-200 bg-emerald-50/50 p-6 shadow-sm">
-                <div className="relative flex h-24 w-24 items-center justify-center">
-                  <svg className="h-full w-full -rotate-90">
-                    <circle cx="48" cy="48" r="40" fill="transparent" stroke="#e4e4e7" strokeWidth="4" />
+            <section className="rounded-[28px] border border-emerald-100 bg-white p-8">
+              <h2 className="text-[20px] font-semibold text-zinc-900">
+                QC Score
+              </h2>
+
+              <div className="mt-8 flex gap-12">
+                {/* Circle score */}
+                <div className="relative flex h-[150px] w-[150px] items-center justify-center">
+                  <svg
+                    className="absolute inset-0 h-full w-full -rotate-90"
+                    viewBox="0 0 150 150"
+                  >
                     <circle
-                      cx="48" cy="48" r="40" fill="transparent"
-                      stroke="#059669" strokeWidth="4"
-                      strokeDasharray="251.2"
-                      strokeDashoffset={scoreOffset}
+                      cx="75"
+                      cy="75"
+                      r="63"
+                      fill="transparent"
+                      stroke="#d1fae5"
+                      strokeWidth="12"
+                    />
+                    <circle
+                      cx="75"
+                      cy="75"
+                      r="63"
+                      fill="transparent"
+                      stroke="#059669"
+                      strokeWidth="12"
+                      strokeDasharray={`${2 * Math.PI * 63}`}
+                      strokeDashoffset={`${2 * Math.PI * 63 * (1 - score / 100)}`}
                       strokeLinecap="round"
                     />
                   </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-bold text-zinc-900">{inspection.ai_quality_score}</span>
-                    <span className="text-[10px] text-zinc-400">/ 100</span>
-                  </div>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-zinc-900">AI QC Score</h4>
-                  <p className="text-sm text-zinc-500">
-                    {inspection.ai_quality_score >= 75
-                      ? <span>Exceeds threshold by <span className="font-bold text-emerald-600">+{inspection.ai_quality_score - 75}%</span></span>
-                      : <span className="text-red-600">Below threshold</span>}
-                  </p>
-                </div>
-              </div>
 
-              {/* Assessment Details */}
-              <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-6 shadow-sm">
-                <h3 className="mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-zinc-400">
-                  ✨ Intelligence Assessment
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-zinc-500">Color Profile</span>
-                    <span className="rounded border border-zinc-200 bg-white px-2 py-0.5 text-xs font-medium text-zinc-700">
+                  <div className="text-center">
+                    <h3 className="text-[52px] font-bold leading-none text-emerald-600">
+                      {score}
+                    </h3>
+                    <p className="mt-1 text-[28px] text-zinc-700">/100</p>
+                  </div>
+                </div>
+
+                {/* QC Details */}
+                <div className="grid flex-1 grid-cols-2 gap-y-10">
+                  <div>
+                    <p className="text-sm text-zinc-500">Color Profile</p>
+                    <h3 className="mt-1 text-[18px] font-semibold text-zinc-900">
                       {inspection.ai_colour ?? "Standard"}
-                    </span>
+                    </h3>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-zinc-500">Foreign Matter</span>
-                    <span className={`text-xs font-bold ${inspection.ai_foreign_matter ? "text-red-600" : "text-emerald-600"}`}>
+
+                  <div>
+                    <p className="text-sm text-zinc-500">Foreign Matter</p>
+                    <h3
+                      className={`mt-1 text-[18px] font-semibold ${inspection.ai_foreign_matter ? "text-red-600" : "text-emerald-600"}`}
+                    >
                       {inspection.ai_foreign_matter ? "Detected" : "None"}
-                    </span>
+                    </h3>
                   </div>
-                  <div className="flex items-start justify-between">
-                    <span className="text-sm text-zinc-500">Defects</span>
-                    <span className="text-right text-xs font-medium text-zinc-600">
-                      {Array.isArray(inspection.ai_defects) && inspection.ai_defects.length > 0
+
+                  <div>
+                    <p className="text-sm text-zinc-500">Defects</p>
+                    <h3 className="mt-1 text-[18px] font-semibold text-zinc-900">
+                      {Array.isArray(inspection.ai_defects) &&
+                      inspection.ai_defects.length > 0
                         ? (inspection.ai_defects as string[]).join(", ")
                         : "None detected"}
-                    </span>
+                    </h3>
                   </div>
+
+                  {inspection.ai_recommendation && (
+                    <div>
+                      <p className="text-sm text-zinc-500">Recommendation</p>
+                      <h3 className="mt-1 text-[18px] font-semibold text-zinc-900">
+                        {inspection.ai_recommendation}
+                      </h3>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* AI Recommendation */}
-          {inspection?.ai_recommendation && (
-            <div className="rounded-xl border border-zinc-200 bg-white p-5">
-              <h3 className="mb-2 text-[11px] font-bold uppercase tracking-widest text-zinc-400">AI Recommendation</h3>
-              <p className="text-sm text-zinc-700">{inspection.ai_recommendation}</p>
-              {inspection.ai_notes && (
-                <p className="mt-2 text-sm italic text-zinc-500">{inspection.ai_notes}</p>
+              {/* AI Vision Image Card */}
+              {
+                <div className="mt-8 overflow-hidden rounded-[24px] border border-emerald-100">
+                  {/* Top bar */}
+                  <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <Eye className="size-5 text-emerald-600" />
+                      <h3 className="font-semibold text-zinc-800">
+                        AI Computer Vision Overview
+                      </h3>
+                    </div>
+                    <Layers3 className="size-5 text-emerald-600" />
+                  </div>
+
+                  {/* Image with bounding boxes */}
+                  <div className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={lot.lot_images[0]?.storage_url ?? "/turmeric.jpg"}
+                      alt={lot.material_name}
+                      className="h-[340px] w-full object-cover"
+                    />
+
+                    {/* Dynamic bounding boxes from AI detections */}
+                    {inspection.ai_detections?.map((det, idx) => (
+                      <div
+                        key={idx}
+                        className="absolute rounded-[24px] border-4 border-dashed border-white"
+                        style={{
+                          left: `${det.x}%`,
+                          top: `${det.y}%`,
+                          width: `${det.width}%`,
+                          height: `${det.height}%`,
+                        }}
+                      >
+                        <div className="absolute -right-4 top-2 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow">
+                          <Eye className="size-5 text-emerald-600" />
+                        </div>
+                        <span className="absolute -bottom-6 left-0 rounded bg-white/90 px-2 py-0.5 text-xs font-medium text-zinc-700 shadow">
+                          {det.label}
+                        </span>
+                      </div>
+                    ))}
+
+                    {/* Fallback static boxes when no detections */}
+                    {(!inspection.ai_detections ||
+                      inspection.ai_detections.length === 0) && (
+                      <>
+                        <div className="absolute left-14 top-16 h-[190px] w-[240px] rounded-[24px] border-4 border-dashed border-white">
+                          <div className="absolute -right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow">
+                            <Eye className="size-5 text-emerald-600" />
+                          </div>
+                        </div>
+                        <div className="absolute bottom-10 right-12 h-[120px] w-[170px] rounded-[24px] border-4 border-dashed border-white">
+                          <div className="absolute -right-4 top-2 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow">
+                            <Eye className="size-5 text-emerald-600" />
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Zoom controls */}
+                    <div className="absolute right-5 top-5 flex items-center gap-3 rounded-2xl bg-white px-4 py-2 shadow">
+                      <Search className="size-5 text-zinc-600" />
+                      <span className="font-medium text-zinc-700">100%</span>
+                      <SearchCheck className="size-5 text-zinc-600" />
+                    </div>
+                  </div>
+                </div>
+              }
+
+              {/* Human Decision */}
+              {inspection.human_decision && (
+                <div
+                  className={`mt-6 rounded-2xl p-5 ${inspection.human_decision === "approved" ? "bg-emerald-50 border border-emerald-200" : "bg-red-50 border border-red-200"}`}
+                >
+                  <p className="text-sm text-zinc-500">Human Decision</p>
+                  <h3
+                    className={`mt-1 text-[18px] font-semibold capitalize ${inspection.human_decision === "approved" ? "text-emerald-700" : "text-red-700"}`}
+                  >
+                    {inspection.human_decision}
+                  </h3>
+                  {inspection.human_notes && (
+                    <p className="mt-1 text-sm text-zinc-600">
+                      {inspection.human_notes}
+                    </p>
+                  )}
+                </div>
               )}
-            </div>
+            </section>
           )}
-
-          {/* Human Decision */}
-          {inspection?.human_decision && (
-            <div className={`rounded-xl border p-5 ${inspection.human_decision === "approved" ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50"}`}>
-              <h3 className="mb-1 text-[11px] font-bold uppercase tracking-widest text-zinc-400">Human Decision</h3>
-              <p className={`text-sm font-bold ${inspection.human_decision === "approved" ? "text-emerald-700" : "text-red-700"}`}>
-                {inspection.human_decision.toUpperCase()}
-              </p>
-              {inspection.human_notes && <p className="mt-1 text-sm text-zinc-600">{inspection.human_notes}</p>}
-            </div>
-          )}
-
-          {/* Images */}
-          <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
-            <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">Inspection Images</h3>
-            {lot.lot_images.length > 0 && (
-              <div className="grid grid-cols-3 gap-3">
-                {lot.lot_images.map((img) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img key={img.id} src={img.storage_url} alt="Lot" className="h-40 w-full rounded-lg object-cover" />
-                ))}
-              </div>
-            )}
-            <LotImageUpload lotId={lot.id} />
-          </div>
-
-          {/* Zone Assignment */}
-          {lot.status === "approved" && !lot.warehouse_zone && (
-            <ZoneAssignment lotId={lot.id} />
-          )}
-
-          {/* Knowledge Notes */}
-          <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
-            <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">Knowledge Notes</h3>
-            <KnowledgeNotesList lotId={lot.id} />
-            <KnowledgeNoteForm lotId={lot.id} materialName={lot.material_name} />
-          </div>
         </div>
 
-        {/* Right Column: Timeline */}
+        {/* Timeline (right column) */}
         <div className="col-span-12 lg:col-span-4">
-          <div className="sticky top-24 rounded-xl border border-zinc-200 bg-white p-6">
-            <h3 className="mb-6 text-[11px] font-bold uppercase tracking-widest text-zinc-400">
-              Genealogy & Events
-            </h3>
+          <section className="rounded-[28px] border border-emerald-100 bg-white p-8">
+            <h2 className="text-[20px] font-semibold text-zinc-900">Story</h2>
 
-            {lot.batch_events.length === 0 ? (
-              <p className="text-sm text-zinc-400">No events recorded.</p>
-            ) : (
-              <div className="relative ml-2 space-y-8 border-l border-emerald-200 pl-6">
-                {lot.batch_events.map((event) => (
-                  <div key={event.id} className="relative">
-                    <div className="absolute -left-[29px] top-0 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 ring-4 ring-emerald-50" />
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-emerald-600">
-                      {new Date(event.created_at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+            <div className="mt-8 space-y-10">
+              {lot.batch_events.length === 0 ? (
+                <p className="text-sm text-zinc-400">No events recorded.</p>
+              ) : (
+                lot.batch_events.map((event, idx) => (
+                  <div key={event.id} className="relative pl-14">
+                    {/* Connecting line */}
+                    {idx !== lot.batch_events.length - 1 && (
+                      <div className="absolute left-[14px] top-8 h-[120px] w-[2px] bg-emerald-200" />
+                    )}
+
+                    {/* Dot */}
+                    <div className="absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-full border-4 border-emerald-100 bg-white">
+                      <div className="h-4 w-4 rounded-full bg-emerald-600" />
+                    </div>
+
+                    <p className="text-[15px] font-medium text-emerald-600">
+                      {new Date(event.created_at).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}{" "}
+                      {new Date(event.created_at).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </p>
-                    <h4 className="text-sm font-semibold text-zinc-800">{event.event_type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}</h4>
-                    <p className="text-xs text-zinc-500">{event.description}</p>
+
+                    <h3 className="mt-1 text-[20px] font-semibold text-zinc-900">
+                      {event.event_type
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, (c) => c.toUpperCase())}
+                    </h3>
+
+                    <p className="mt-1 max-w-[240px] text-[15px] leading-relaxed text-zinc-500">
+                      {event.description ?? "—"}
+                    </p>
+
                     {event.actor_name && (
-                      <p className="mt-1 text-[10px] text-zinc-400">by {event.actor_name}</p>
+                      <p className="mt-1 text-xs text-zinc-400">
+                        by {event.actor_name}
+                      </p>
                     )}
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Chain of Custody */}
-            <div className="mt-8 border-t border-zinc-100 pt-4">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase text-zinc-400">Chain of Custody</span>
-                <span className="text-emerald-500">✓</span>
-              </div>
-              <div className="flex -space-x-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-zinc-100 text-[10px] font-bold text-zinc-600">OP</div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-emerald-100 text-[10px] font-bold text-emerald-700">AI</div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-blue-100 text-[10px] font-bold text-blue-700">QC</div>
-              </div>
+                ))
+              )}
             </div>
-
-            {/* Back link */}
-            <div className="mt-6 border-t border-zinc-100 pt-4">
-              <Link href="/dashboard" className="text-sm font-medium text-emerald-600 hover:text-emerald-800">
-                ← Back to Dashboard
-              </Link>
-            </div>
-          </div>
+          </section>
         </div>
       </div>
     </div>

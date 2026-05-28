@@ -2,7 +2,7 @@
 
 import "server-only";
 
-import { GradeQcInput, InspectionAnalysis } from "../types/qc-types";
+import { GradeQcInput, InspectionAnalysis, Detection } from "../types/qc-types";
 
 function extractOutputText(payload: unknown) {
   if (
@@ -83,6 +83,18 @@ function normalizeAnalysis(payload: unknown): InspectionAnalysis {
       typeof raw.notes === "string"
         ? raw.notes
         : "No additional notes returned.",
+    detections: Array.isArray(raw.detections)
+      ? raw.detections.filter(
+          (d): d is Detection =>
+            typeof d === "object" &&
+            d !== null &&
+            typeof d.label === "string" &&
+            typeof d.x === "number" &&
+            typeof d.y === "number" &&
+            typeof d.width === "number" &&
+            typeof d.height === "number",
+        )
+      : [],
   };
 }
 
@@ -105,8 +117,10 @@ export async function gradeQcAction(
     "You are a manufacturing QC assistant for SimaOS.",
     "Analyze the uploaded raw-material intake photo and return JSON only.",
     "Use this exact shape:",
-    '{"qualityScore": number, "colorAssessment": string, "defects": string[], "foreignMatter": boolean, "recommendation": string, "notes": string}',
+    '{"qualityScore": number, "colorAssessment": string, "defects": string[], "foreignMatter": boolean, "recommendation": string, "notes": string, "detections": [{"label": string, "x": number, "y": number, "width": number, "height": number}]}',
     "Quality score must be 0-100.",
+    "detections: array of regions of interest you identified. x, y, width, height are percentages (0-100) relative to the full image. x/y is the top-left corner. Label each detection (e.g. 'discoloration', 'foreign particle', 'mold spot', 'good region').",
+    "Return at least 1 detection for the primary region analyzed. Return more if defects or foreign matter are found.",
     "Only describe visual evidence from the image.",
     input.materialType ? `Material type: ${input.materialType}.` : "",
     input.supplier ? `Supplier: ${input.supplier}.` : "",
