@@ -13,6 +13,7 @@ import {
   DropdownTrigger,
 } from "./dropdown";
 import { useLogoutMutation } from "@/features/auth/queries/auth-queries";
+import FloatingCopilot from "@/features/copilot/components/floating-copilot";
 
 function AppShellInner({ children }: { children: React.ReactNode }) {
   const { profile } = useAuth();
@@ -90,6 +91,8 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
       >
         {children}
       </main>
+
+      <FloatingCopilot />
     </div>
   );
 }

@@ -71,7 +71,7 @@ export default function LotsPage() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       {/* Header */}
       <div>
         <h1 className="text-4xl font-semibold text-zinc-900">Inventory</h1>
