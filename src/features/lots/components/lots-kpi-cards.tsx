@@ -4,8 +4,7 @@ import {
   AlertCircle,
   ArrowUpRight,
   CheckCircle2,
-  Factory,
-  Truck,
+  Scale,
   XCircle,
 } from "lucide-react";
 import { useLotsQuery } from "../queries/lots-queries";
@@ -17,10 +16,9 @@ export default function LotsKpiCards() {
   const pendingQc = lots?.filter((l) => l.status === "in_qc").length ?? 0;
   const approved = lots?.filter((l) => l.status === "approved").length ?? 0;
   const rejected = lots?.filter((l) => l.status === "rejected").length ?? 0;
-  const inProduction =
-    lots?.filter((l) => l.status === "in_production").length ?? 0;
-  const arriving = lots?.filter((l) => l.status === "arriving").length ?? 0;
   const totalLots = lots?.length ?? 0;
+  const totalWeight =
+    lots?.reduce((sum, l) => sum + Number(l.quantity_kg), 0) ?? 0;
 
   const kpis = [
     {
@@ -31,7 +29,7 @@ export default function LotsKpiCards() {
       iconBg: "bg-amber-100",
       iconColor: "text-amber-500",
       changeColor: "text-amber-600",
-      status: "in_qc",
+      href: "/lots/status/in_qc",
     },
     {
       title: "Approved",
@@ -41,7 +39,7 @@ export default function LotsKpiCards() {
       iconBg: "bg-emerald-100",
       iconColor: "text-emerald-600",
       changeColor: "text-emerald-600",
-      status: "approved",
+      href: "/lots/status/approved",
     },
     {
       title: "Rejected",
@@ -51,32 +49,22 @@ export default function LotsKpiCards() {
       iconBg: "bg-red-100",
       iconColor: "text-red-500",
       changeColor: "text-red-500",
-      status: "rejected",
+      href: "/lots/status/rejected",
     },
     {
-      title: "In Production",
-      value: inProduction,
-      change: `${inProduction} active`,
-      icon: Factory,
-      iconBg: "bg-blue-100",
-      iconColor: "text-blue-600",
-      changeColor: "text-blue-600",
-      status: "in_production",
-    },
-    {
-      title: "Arriving",
-      value: arriving,
-      change: `${arriving} incoming`,
-      icon: Truck,
+      title: "Total Weight",
+      value: `${(totalWeight / 1000).toFixed(1)} kg`,
+      change: `From ${totalLots} lots`,
+      icon: Scale,
       iconBg: "bg-zinc-100",
       iconColor: "text-zinc-600",
       changeColor: "text-zinc-600",
-      status: "arriving",
+      href: "/lots",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-5 md:grid-cols-3 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
       {kpis.map((item) => {
         const Icon = item.icon;
         return (
@@ -104,12 +92,14 @@ export default function LotsKpiCards() {
                 {item.value}
               </h2>
 
-              <Link
-                href={`/lots/status/${item.status}`}
-                className="flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-50"
-              >
-                <ArrowUpRight className="size-5" />
-              </Link>
+              {item.href !== "/lots" && (
+                <Link
+                  href={item.href}
+                  className="flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-50"
+                >
+                  <ArrowUpRight className="size-5" />
+                </Link>
+              )}
             </div>
           </div>
         );

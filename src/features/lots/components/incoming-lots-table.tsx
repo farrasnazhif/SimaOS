@@ -77,15 +77,6 @@ const filterOptions = [
   },
 ];
 
-function getGrade(score: number | undefined): string {
-  if (score === undefined) return "-";
-  if (score >= 90) return "A";
-  if (score >= 75) return "B";
-  if (score >= 60) return "C";
-  if (score >= 40) return "D";
-  return "F";
-}
-
 function StatusBadge({ status }: { status: string }) {
   const config = statusConfig[status] ?? statusConfig.arriving;
 
@@ -308,7 +299,9 @@ export default function IncomingLotsTable() {
                   </td>
 
                   <td className="px-4 py-5 text-sm font-semibold text-zinc-700">
-                    {lot.qc_inspections?.[0]?.ai_quality_score != null ? `${lot.qc_inspections[0].ai_quality_score}/100` : "-"}
+                    {lot.qc_inspections?.[0]?.ai_quality_score != null
+                      ? `${lot.qc_inspections[0].ai_quality_score}/100`
+                      : "-"}
                   </td>
 
                   <td className="px-4 py-5 text-sm font-medium text-zinc-700">
