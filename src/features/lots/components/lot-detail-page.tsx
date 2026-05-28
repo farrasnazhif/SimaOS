@@ -1,15 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { useLotDetailQuery } from "../queries/lots-queries";
 import { useLotDecisionMutation } from "../queries/lots-queries";
 import {
+  ChevronDown,
+  ChevronUp,
   CircleCheckBig,
   CircleX,
   ClockFading,
   Eye,
   Layers3,
-  Search,
-  SearchCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumb from "@/components/ui/breadcrumb";
@@ -42,6 +43,83 @@ function StatusBadge({ status }: { status: string }) {
     >
       {s.label}
     </div>
+  );
+}
+
+function TimelineSection({
+  events,
+}: {
+  events: {
+    id: string;
+    event_type: string;
+    description: string | null;
+    actor_name: string | null;
+    created_at: string;
+  }[];
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const visible = expanded ? events : events.slice(0, 7);
+
+  return (
+    <section className="rounded-[28px] border border-emerald-100 bg-white p-8">
+      <h2 className="text-[20px] font-semibold text-zinc-900">Story</h2>
+
+      <div className="mt-8 space-y-10">
+        {events.length === 0 ? (
+          <p className="text-sm text-zinc-400">No events recorded.</p>
+        ) : (
+          visible.map((event, idx) => (
+            <div key={event.id} className="relative pl-14">
+              {idx !== visible.length - 1 && (
+                <div className="absolute left-[14px] top-8 h-[120px] w-[2px] bg-emerald-200" />
+              )}
+
+              <div className="absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-full border-4 border-emerald-100 bg-white">
+                <div className="h-4 w-4 rounded-full bg-emerald-600" />
+              </div>
+
+              <p className="text-sm font-medium text-emerald-600">
+                {new Date(event.created_at).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}{" "}
+                {new Date(event.created_at).toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+
+              <h3 className="mt-1 text-lg font-semibold text-zinc-900">
+                {event.event_type
+                  .replace(/_/g, " ")
+                  .replace(/\b\w/g, (c) => c.toUpperCase())}
+              </h3>
+
+              <p className="mt-1 max-w-[240px] text-sm leading-relaxed text-zinc-500">
+                {event.description ?? "—"}
+              </p>
+
+              {event.actor_name && (
+                <p className="mt-1 text-xs text-zinc-400">
+                  by {event.actor_name}
+                </p>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+
+      {events.length > 7 && (
+        <Button
+          onClick={() => setExpanded(!expanded)}
+          className="mt-6 w-full"
+          rightIcon={expanded ? ChevronUp : ChevronDown}
+        >
+          {expanded ? "Show less" : "Show more"}
+        </Button>
+      )}
+    </section>
   );
 }
 
@@ -372,82 +450,13 @@ export default function LotDetailPage({ lotId }: { lotId: string }) {
                   </div>
                 </div>
               }
-
-              {/* Human Decision */}
-              {inspection.human_decision && (
-                <div
-                  className={`mt-6 rounded-2xl p-5 ${inspection.human_decision === "approved" ? "bg-emerald-50 border border-emerald-200" : "bg-red-50 border border-red-200"}`}
-                >
-                  <p className="text-sm text-zinc-500">Human Decision</p>
-                  <h3
-                    className={`mt-1 text-[18px] font-semibold capitalize ${inspection.human_decision === "approved" ? "text-emerald-700" : "text-red-700"}`}
-                  >
-                    {inspection.human_decision}
-                  </h3>
-                  {inspection.human_notes && (
-                    <p className="mt-1 text-sm text-zinc-600">
-                      {inspection.human_notes}
-                    </p>
-                  )}
-                </div>
-              )}
             </section>
           )}
         </div>
 
         {/* Timeline (right column) */}
         <div className="col-span-12 lg:col-span-4">
-          <section className="rounded-[28px] border border-emerald-100 bg-white p-8">
-            <h2 className="text-[20px] font-semibold text-zinc-900">Story</h2>
-
-            <div className="mt-8 space-y-10">
-              {lot.batch_events.length === 0 ? (
-                <p className="text-sm text-zinc-400">No events recorded.</p>
-              ) : (
-                lot.batch_events.map((event, idx) => (
-                  <div key={event.id} className="relative pl-14">
-                    {/* Connecting line */}
-                    {idx !== lot.batch_events.length - 1 && (
-                      <div className="absolute left-[14px] top-8 h-[120px] w-[2px] bg-emerald-200" />
-                    )}
-
-                    {/* Dot */}
-                    <div className="absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-full border-4 border-emerald-100 bg-white">
-                      <div className="h-4 w-4 rounded-full bg-emerald-600" />
-                    </div>
-
-                    <p className="text-sm font-medium text-emerald-600">
-                      {new Date(event.created_at).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}{" "}
-                      {new Date(event.created_at).toLocaleTimeString("en-US", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-
-                    <h3 className="mt-1 text-lg font-semibold text-zinc-900">
-                      {event.event_type
-                        .replace(/_/g, " ")
-                        .replace(/\b\w/g, (c) => c.toUpperCase())}
-                    </h3>
-
-                    <p className="mt-1 max-w-[240px] text-sm leading-relaxed text-zinc-500">
-                      {event.description ?? "—"}
-                    </p>
-
-                    {event.actor_name && (
-                      <p className="mt-1 text-xs text-zinc-400">
-                        by {event.actor_name}
-                      </p>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
+          <TimelineSection events={lot.batch_events} />
         </div>
       </div>
     </div>

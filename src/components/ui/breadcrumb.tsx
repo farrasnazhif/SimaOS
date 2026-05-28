@@ -28,11 +28,12 @@ export default function Breadcrumb({ lastLabel }: { lastLabel?: string } = {}) {
 
         const isLast = index === paths.length - 1;
 
-        const label = isLast && lastLabel
-          ? lastLabel
-          : segment
-              .replace(/-/g, " ")
-              .replace(/\b\w/g, (char) => char.toUpperCase());
+        const label =
+          isLast && lastLabel
+            ? lastLabel
+            : segment
+                .replace(/-/g, " ")
+                .replace(/\b\w/g, (char) => char.toUpperCase());
 
         return (
           <div key={href} className="flex items-center gap-2">
