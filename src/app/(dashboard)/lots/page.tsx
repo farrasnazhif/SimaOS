@@ -2,9 +2,23 @@
 
 import Link from "next/link";
 import IncomingLotsTable from "@/features/lots/components/incoming-lots-table";
-import KpiCards from "@/features/dashboard/components/kpi-cards";
+import { useLotsQuery } from "@/features/lots/queries/lots-queries";
 
 export default function LotsPage() {
+  const { data: lots } = useLotsQuery();
+
+  const pendingQc = lots?.filter((l) => l.status === "in_qc").length ?? 0;
+  const approved = lots?.filter((l) => l.status === "approved").length ?? 0;
+  const rejected = lots?.filter((l) => l.status === "rejected").length ?? 0;
+  const totalLots = lots?.length ?? 0;
+
+  const kpis = [
+    { label: "Pending QC", value: pendingQc, color: "text-amber-700", border: "border-amber-200", bg: "bg-amber-50" },
+    { label: "Approved", value: approved, color: "text-green-700", border: "border-green-200", bg: "bg-green-50" },
+    { label: "Rejected", value: rejected, color: "text-red-700", border: "border-red-200", bg: "bg-red-50" },
+    { label: "Total Lots", value: totalLots, color: "text-emerald-700", border: "border-emerald-200", bg: "bg-emerald-50" },
+  ];
+
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       {/* Header */}
@@ -15,12 +29,9 @@ export default function LotsPage() {
             <span className="text-zinc-300">›</span>
             <span className="text-emerald-600">Raw Materials</span>
           </nav>
-          <h1 className="text-2xl font-semibold text-zinc-900">
-            Incoming Lots
-          </h1>
+          <h1 className="text-2xl font-semibold text-zinc-900">Incoming Lots</h1>
           <p className="max-w-lg text-sm text-zinc-500">
-            Manage incoming material lots, quality certifications, and batch
-            initialization for production lines.
+            Manage incoming material lots, quality certifications, and batch initialization for production lines.
           </p>
         </div>
         <Link
@@ -31,11 +42,17 @@ export default function LotsPage() {
         </Link>
       </div>
 
-      <KpiCards />
-
-      <div className="">
-        <IncomingLotsTable />
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {kpis.map((kpi) => (
+          <div key={kpi.label} className={`rounded-xl border ${kpi.border} ${kpi.bg} p-4`}>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">{kpi.label}</p>
+            <p className={`mt-1 text-3xl font-bold ${kpi.color}`}>{kpi.value}</p>
+          </div>
+        ))}
       </div>
+
+      <IncomingLotsTable />
     </div>
   );
 }
