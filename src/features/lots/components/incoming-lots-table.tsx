@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useLotsQuery } from "../queries/lots-queries";
 import { Download, Filter } from "lucide-react";
+import Button from "@/components/ui/buttons/button";
 
 const statusConfig: Record<string, { label: string; color: string }> = {
   approved: { label: "Approved", color: "bg-green-50 text-green-700 border-green-200" },
@@ -54,51 +55,37 @@ export default function IncomingLotsTable() {
   }
 
   if (isLoading) {
-    return <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-400">Loading lots...</div>;
+    return <div className="p-8 text-center text-sm text-zinc-400">Loading lots...</div>;
   }
   if (error) {
-    return <div className="rounded-xl border border-red-200 bg-red-50 p-8 text-center text-sm text-red-600">Failed to load lots.</div>;
+    return <div className="p-8 text-center text-sm text-red-600">Failed to load lots.</div>;
   }
   if (!lots || lots.length === 0) {
-    return <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-400">No lots found.</div>;
+    return <div className="p-8 text-center text-sm text-zinc-400">No lots found.</div>;
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4">
-        <div className="flex items-center gap-3">
-          <h4 className="text-lg font-semibold text-zinc-900">Lots List</h4>
-          <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
-            {filtered.length} entries
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Filter */}
-          <div className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5">
-            <Filter className="size-3.5 text-zinc-400" />
-            <select
-              value={statusFilter}
-              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="border-none bg-transparent p-0 text-sm text-zinc-700 focus:outline-none focus:ring-0"
-            >
-              <option value="all">All Status</option>
-              <option value="in_qc">In QC</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-              <option value="in_production">In Production</option>
-              <option value="arriving">Arriving</option>
-            </select>
-          </div>
-          {/* Export */}
-          <button
-            onClick={exportCsv}
-            className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-sm text-zinc-600 hover:bg-zinc-50 transition-colors"
+    <div>
+      {/* Toolbar */}
+      <div className="flex items-center justify-end gap-2 px-2 pb-4">
+        <div className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5">
+          <Filter className="size-3.5 text-zinc-400" />
+          <select
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+            className="border-none bg-transparent p-0 text-sm text-zinc-700 focus:outline-none focus:ring-0"
           >
-            <Download className="size-3.5" />
-            Export CSV
-          </button>
+            <option value="all">All Status</option>
+            <option value="in_qc">In QC</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="in_production">In Production</option>
+            <option value="arriving">Arriving</option>
+          </select>
         </div>
+        <Button variant="secondary" size="sm" leftIcon={Download} onClick={exportCsv}>
+          Export CSV
+        </Button>
       </div>
 
       {/* Table */}
@@ -129,12 +116,9 @@ export default function IncomingLotsTable() {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-between border-t border-zinc-100 px-6 py-3">
-        <span className="text-sm text-zinc-500">
-          Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
-        </span>
-        <div className="flex gap-1">
+      {/* Pagination — centered */}
+      <div className="flex items-center justify-center border-t border-zinc-100 px-6 py-4">
+        <div className="flex items-center gap-1">
           <button
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}

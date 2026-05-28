@@ -26,7 +26,8 @@ export default function LotsPage() {
   const rejected = lots?.filter((l) => l.status === "rejected").length ?? 0;
 
   const totalLots = lots?.length ?? 0;
-  const totalStock = lots?.reduce((sum, l) => sum + (Number(l.quantity_kg) || 0), 0) ?? 0;
+  const totalStock =
+    lots?.reduce((sum, l) => sum + (Number(l.quantity_kg) || 0), 0) ?? 0;
 
   const kpis = [
     {
@@ -126,48 +127,7 @@ export default function LotsPage() {
         })}
       </div>
 
-      {/* Table Section */}
-      <div className="overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-sm">
-        {/* Table Header */}
-        <div className="flex flex-col gap-4 border-b border-zinc-100 px-8 py-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-4">
-            <h2 className="text-4xl font-bold tracking-tight text-zinc-900">
-              Lots
-            </h2>
-
-            <div className="rounded-full bg-emerald-100 px-4 py-1 text-sm font-semibold text-emerald-700">
-              {lots?.length ?? 0} Entries
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button
-              variant="primary"
-              leftIcon={FileText}
-              className="rounded-2xl px-6"
-            >
-              Export
-            </Button>
-
-            <Button
-              variant="primary"
-              leftIcon={Filter}
-              className="rounded-2xl px-6"
-            >
-              Filter
-            </Button>
-
-            <Link href="/batches/new">
-              <Button className="rounded-2xl px-6">Create Batch</Button>
-            </Link>
-          </div>
-        </div>
-
-        {/* Table */}
-        <div className="p-5">
-          <IncomingLotsTable />
-        </div>
-      </div>
+      <IncomingLotsTable />
     </div>
   );
 }
