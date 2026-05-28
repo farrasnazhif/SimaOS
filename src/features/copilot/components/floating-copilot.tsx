@@ -86,7 +86,7 @@ export default function FloatingCopilot() {
             style={{
               transformOrigin: "bottom right",
             }}
-            className="absolute bottom-20 right-0 flex h-[480px] w-[320px] flex-col overflow-hidden rounded-[32px] border border-zinc-200 bg-[#F4F7F6] shadow-[0_20px_70px_rgba(0,0,0,0.16)]"
+            className="absolute bottom-20 right-0 flex h-[620px] w-[350px] flex-col overflow-hidden rounded-[32px] border border-zinc-200 bg-[#F4F7F6] shadow-[0_20px_70px_rgba(0,0,0,0.16)]"
           >
             {/* header */}
             <div className="flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-4">
@@ -114,40 +114,10 @@ export default function FloatingCopilot() {
               </div>
             </div>
 
-            {/* body */}
-            <div className="flex flex-1 flex-col justify-end px-5">
+            <div className="flex flex-1 flex-col overflow-hidden">
               {/* messages */}
-              <div className="overflow-y-auto">
-                {messages.length === 0 ? (
-                  <motion.div
-                    initial={{
-                      opacity: 0,
-                      y: 6,
-                    }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                    }}
-                    transition={{
-                      duration: 0.18,
-                    }}
-                  >
-                    <p className=" text-center text-sm text-zinc-900">
-                      Search reports, batches, and more…
-                    </p>
-
-                    {/* <div className="max-w-[230px] rounded-[24px] bg-[#ECECEC] px-4 py-4">
-                      <p className="text-sm leading-[1.6] text-zinc-900">
-                        Hi there, you're speaking with SimaOS AI Assistant. How
-                        can I help you today?
-                      </p>
-                    </div> */}
-
-                    {/* <p className="mt-2 text-[11px] text-zinc-400">
-                      Sima Copilot • Just now
-                    </p> */}
-                  </motion.div>
-                ) : (
+              <div className="flex-1 overflow-y-auto px-5 py-5">
+                {messages.length > 0 && (
                   <div className="space-y-3">
                     {messages.map((message, index) => {
                       const isUser = message.role === "user";
@@ -198,30 +168,54 @@ export default function FloatingCopilot() {
                 )}
               </div>
 
-              {/* input */}
-              <div className="mt-3 mb-5 rounded-[24px] border-2 border-zinc-300 bg-white p-4">
-                <textarea
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-
-                      handleSend();
-                    }
+              {/* empty state */}
+              {messages.length === 0 && (
+                <motion.div
+                  initial={{
+                    opacity: 0,
+                    y: 6,
                   }}
-                  placeholder="Message..."
-                  rows={1}
-                  className="min-h-[24px] w-full resize-none bg-transparent text-sm text-zinc-800 outline-none placeholder:text-zinc-400"
-                />
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  transition={{
+                    duration: 0.18,
+                  }}
+                  className="px-5 pt-4"
+                >
+                  <p className="text-center text-sm text-zinc-500">
+                    Search reports, batches, and more…
+                  </p>
+                </motion.div>
+              )}
 
-                <div className="mt-4 flex items-center justify-end">
-                  <IconButton
-                    onClick={handleSend}
-                    disabled={mutation.isPending}
-                    size="sm"
-                    icon={ArrowUp}
+              {/* input */}
+              <div className="bg-[#F4F7F6] px-5 py-4">
+                <div className="rounded-[24px] border-2 border-[#E2E2E2] bg-white p-4">
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+
+                        handleSend();
+                      }
+                    }}
+                    placeholder="Message..."
+                    rows={1}
+                    className="min-h-[24px] w-full resize-none bg-transparent text-sm text-zinc-800 outline-none placeholder:text-zinc-400"
                   />
+
+                  <div className="mt-4 flex items-center justify-end">
+                    <IconButton
+                      onClick={handleSend}
+                      disabled={mutation.isPending}
+                      size="sm"
+                      icon={ArrowUp}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
