@@ -2,8 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { ArrowUpDown, ArrowUpRight, Download, Filter } from "lucide-react";
-import Button from "@/components/ui/buttons/button";
+import { ArrowUpDown, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import Breadcrumb from "@/components/ui/breadcrumb";
 
@@ -145,9 +144,7 @@ export default function LotStatusDetailPage({ status }: { status: string }) {
     : 0;
   const highestScore = scores.length ? Math.max(...scores) : null;
   const lowestScore = scores.length ? Math.min(...scores) : null;
-  const suppliers = [
-    ...new Set(lots?.map((l) => l.supplier?.name).filter(Boolean) ?? []),
-  ];
+
   const materials = [...new Set(lots?.map((l) => l.material_name) ?? [])];
   const latestArrival = lots?.length ? lots[0].arrival_date : null;
 
