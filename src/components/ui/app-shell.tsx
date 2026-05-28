@@ -84,7 +84,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
 
       <main
         className={cn(
-          "p-6 transition-all duration-300",
+          "p-6 transition-all duration-300 bg-[#EFF5F3]",
           open ? "ml-64" : "ml-16",
         )}
       >

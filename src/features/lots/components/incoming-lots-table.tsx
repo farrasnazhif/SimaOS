@@ -1,151 +1,356 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useLotsQuery } from "../queries/lots-queries";
-import { Download, Filter } from "lucide-react";
+import {
+  ArrowUpDown,
+  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  ListFilter,
+} from "lucide-react";
+
 import Button from "@/components/ui/buttons/button";
 
-const statusConfig: Record<string, { label: string; color: string }> = {
-  approved: { label: "Approved", color: "bg-green-50 text-green-700 border-green-200" },
-  in_qc: { label: "In QC", color: "bg-amber-50 text-amber-700 border-amber-200" },
-  rejected: { label: "Rejected", color: "bg-red-50 text-red-700 border-red-200" },
-  in_production: { label: "In Production", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  arriving: { label: "Arriving", color: "bg-zinc-50 text-zinc-600 border-zinc-200" },
+import { useLotsQuery } from "../queries/lots-queries";
+
+const PAGE_SIZE = 9;
+
+const statusConfig: Record<
+  string,
+  {
+    label: string;
+    className: string;
+  }
+> = {
+  approved: {
+    label: "Approved",
+    className: "bg-emerald-100/70 text-emerald-700",
+  },
+
+  in_qc: {
+    label: "Awaiting QC",
+    className: "bg-amber-100/70 text-amber-600",
+  },
+
+  rejected: {
+    label: "Rejected",
+    className: "bg-red-100/70 text-red-500",
+  },
+
+  in_production: {
+    label: "In Production",
+    className: "bg-blue-100/70 text-blue-700",
+  },
+
+  arriving: {
+    label: "Arriving",
+    className: "bg-zinc-100 text-zinc-600",
+  },
 };
 
-const PAGE_SIZE = 5;
+const filterOptions = [
+  {
+    label: "All Status",
+    value: "all",
+  },
+  {
+    label: "Approved",
+    value: "approved",
+  },
+  {
+    label: "Awaiting QC",
+    value: "in_qc",
+  },
+  {
+    label: "Rejected",
+    value: "rejected",
+  },
+  {
+    label: "In Production",
+    value: "in_production",
+  },
+  {
+    label: "Arriving",
+    value: "arriving",
+  },
+];
 
 function StatusBadge({ status }: { status: string }) {
-  const config = statusConfig[status] ?? { label: status, color: "bg-zinc-50 text-zinc-600 border-zinc-200" };
+  const config = statusConfig[status] ?? statusConfig.arriving;
+
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${config.color}`}>
+    <div
+      className={`inline-flex items-center rounded-xl px-4 py-1.5 text-sm font-semibold ${config.className}`}
+    >
       {config.label}
-    </span>
+    </div>
   );
 }
 
 export default function IncomingLotsTable() {
   const { data: lots, isLoading, error } = useLotsQuery();
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  const [statusFilter, setStatusFilter] = useState("all");
+
   const [page, setPage] = useState(1);
 
-  const filtered = useMemo(() => {
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  const filteredLots = useMemo(() => {
     if (!lots) return [];
-    if (statusFilter === "all") return lots;
-    return lots.filter((l) => l.status === statusFilter);
+
+    if (statusFilter === "all") {
+      return lots;
+    }
+
+    return lots.filter((lot) => lot.status === statusFilter);
   }, [lots, statusFilter]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(filteredLots.length / PAGE_SIZE));
+
+  const paginatedLots = filteredLots.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE,
+  );
 
   function exportCsv() {
-    if (!filtered.length) return;
+    if (!filteredLots.length) return;
+
     const header = "Lot ID,Material,Supplier,Arrival Date,Status\n";
-    const rows = filtered
-      .map((l) => `${l.lot_number},${l.material_name},${l.supplier?.name ?? ""},${l.arrival_date},${l.status}`)
+
+    const rows = filteredLots
+      .map(
+        (lot) =>
+          `${lot.lot_number},${lot.material_name},${lot.supplier?.name ?? ""},${lot.arrival_date},${lot.status}`,
+      )
       .join("\n");
-    const blob = new Blob([header + rows], { type: "text/csv" });
+
+    const blob = new Blob([header + rows], {
+      type: "text/csv",
+    });
+
     const url = URL.createObjectURL(blob);
+
     const a = document.createElement("a");
+
     a.href = url;
     a.download = "lots-export.csv";
+
     a.click();
+
     URL.revokeObjectURL(url);
   }
 
   if (isLoading) {
-    return <div className="p-8 text-center text-sm text-zinc-400">Loading lots...</div>;
+    return (
+      <div className="rounded-[30px] border border-emerald-100 bg-white p-12 text-center">
+        <p className="text-sm text-zinc-500">Loading lots...</p>
+      </div>
+    );
   }
+
   if (error) {
-    return <div className="p-8 text-center text-sm text-red-600">Failed to load lots.</div>;
+    return (
+      <div className="rounded-[30px] border border-red-200 bg-white p-12 text-center">
+        <p className="text-sm text-red-500">Failed to load lots.</p>
+      </div>
+    );
   }
+
   if (!lots || lots.length === 0) {
-    return <div className="p-8 text-center text-sm text-zinc-400">No lots found.</div>;
+    return (
+      <div className="rounded-[30px] border border-zinc-200 bg-white p-12 text-center">
+        <p className="text-sm text-zinc-500">No lots found.</p>
+      </div>
+    );
   }
 
   return (
-    <div>
-      {/* Toolbar */}
-      <div className="flex items-center justify-end gap-2 px-2 pb-4">
-        <div className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5">
-          <Filter className="size-3.5 text-zinc-400" />
-          <select
-            value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="border-none bg-transparent p-0 text-sm text-zinc-700 focus:outline-none focus:ring-0"
-          >
-            <option value="all">All Status</option>
-            <option value="in_qc">In QC</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-            <option value="in_production">In Production</option>
-            <option value="arriving">Arriving</option>
-          </select>
+    <section className="overflow-hidden rounded-[32px] border border-emerald-100 bg-white">
+      {/* top */}
+      <div className="flex flex-col gap-5 px-8 py-7 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-4">
+          <h2 className="text-[24px] font-semibold leading-none text-zinc-900">
+            Lots
+          </h2>
+
+          <div className="rounded-full bg-emerald-50 px-4 py-1 text-sm font-semibold text-emerald-700">
+            {filteredLots.length} Entries
+          </div>
         </div>
-        <Button variant="secondary" size="sm" leftIcon={Download} onClick={exportCsv}>
-          Export CSV
-        </Button>
+
+        <div className="flex items-center gap-3">
+          <Button
+            variant="primary"
+            size="sm"
+            leftIcon={Download}
+            onClick={exportCsv}
+          >
+            Export
+          </Button>
+
+          <div className="relative">
+            <Button
+              size="sm"
+              leftIcon={ListFilter}
+              onClick={() => setFilterOpen((prev) => !prev)}
+            >
+              Filter
+            </Button>
+
+            {filterOpen && (
+              <div className="absolute right-0 top-12 z-50 w-[190px] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl">
+                <div className="p-2">
+                  {filterOptions.map((option) => {
+                    const isActive = statusFilter === option.value;
+
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => {
+                          setStatusFilter(option.value);
+                          setPage(1);
+                          setFilterOpen(false);
+                        }}
+                        className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${
+                          isActive
+                            ? "bg-emerald-50 font-semibold text-emerald-700"
+                            : "text-zinc-600 hover:bg-zinc-50"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="border-b border-zinc-100 bg-zinc-50/50">
-              <th className="px-6 py-3 text-[11px] font-bold uppercase tracking-wider text-zinc-500">Lot ID</th>
-              <th className="px-6 py-3 text-[11px] font-bold uppercase tracking-wider text-zinc-500">Material</th>
-              <th className="px-6 py-3 text-[11px] font-bold uppercase tracking-wider text-zinc-500">Supplier</th>
-              <th className="px-6 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-zinc-500">Arrival</th>
-              <th className="px-6 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-zinc-500">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-50">
-            {paginated.map((lot) => (
-              <tr key={lot.id} className="transition-colors hover:bg-emerald-50/30">
-                <td className="px-6 py-3.5 text-sm font-semibold text-emerald-700">
-                  <Link href={`/lots/${lot.id}`} className="hover:underline">{lot.lot_number}</Link>
-                </td>
-                <td className="px-6 py-3.5 text-sm text-zinc-700">{lot.material_name}</td>
-                <td className="px-6 py-3.5 text-sm text-zinc-500">{lot.supplier?.name ?? "—"}</td>
-                <td className="px-6 py-3.5 text-right font-mono text-sm text-zinc-500">{lot.arrival_date}</td>
-                <td className="px-6 py-3.5 text-center"><StatusBadge status={lot.status} /></td>
+      {/* table */}
+      <div className="px-6 pb-6">
+        <div className="overflow-hidden rounded-[28px] border border-emerald-100">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-zinc-100">
+                <th className="px-4 py-5 text-left text-sm font-semibold text-zinc-900">
+                  <div className="flex items-center gap-2">
+                    Lot ID
+                    <ArrowUpDown className="size-4 text-zinc-300" />
+                  </div>
+                </th>
+
+                <th className="px-4 py-5 text-left text-sm font-semibold text-zinc-900">
+                  <div className="flex items-center gap-2">
+                    Material
+                    <ArrowUpDown className="size-4 text-zinc-300" />
+                  </div>
+                </th>
+
+                <th className="px-4 py-5 text-left text-sm font-semibold text-zinc-900">
+                  <div className="flex items-center gap-2">
+                    Arrival Date
+                    <ArrowUpDown className="size-4 text-zinc-300" />
+                  </div>
+                </th>
+
+                <th className="px-4 py-5 text-left text-sm font-semibold text-zinc-900">
+                  <div className="flex items-center gap-2">
+                    Status
+                    <ArrowUpDown className="size-4 text-zinc-300" />
+                  </div>
+                </th>
+
+                <th className="px-4 py-5 text-left text-sm font-semibold text-zinc-900">
+                  <div className="flex items-center gap-2">
+                    Actions
+                    <ArrowUpDown className="size-4 text-zinc-300" />
+                  </div>
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {paginatedLots.map((lot, index) => (
+                <tr
+                  key={lot.id}
+                  className={`border-b border-zinc-100 ${
+                    index % 2 === 0 ? "bg-white" : "bg-zinc-50"
+                  }`}
+                >
+                  <td className="px-4 py-5 text-sm font-semibold text-zinc-800">
+                    {lot.lot_number}
+                  </td>
+
+                  <td className="px-4 py-5 text-sm font-medium text-zinc-700">
+                    {lot.material_name}
+                  </td>
+
+                  <td className="px-4 py-5 text-sm font-medium text-zinc-700">
+                    {lot.arrival_date}
+                  </td>
+
+                  <td className="px-4 py-5">
+                    <StatusBadge status={lot.status} />
+                  </td>
+
+                  <td className="px-4 py-5">
+                    <Link
+                      href={`/lots/${lot.id}`}
+                      className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-700 transition-colors hover:text-emerald-800 underline"
+                    >
+                      Details
+                      <ArrowUpRight className="size-4 translate-y-[1px]" />
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* Pagination — centered */}
+      {/* pagination */}
       <div className="flex items-center justify-center border-t border-zinc-100 px-6 py-4">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <button
             disabled={page <= 1}
-            onClick={() => setPage((p) => p - 1)}
-            className="flex h-8 w-8 items-center justify-center rounded border border-zinc-200 text-sm text-zinc-600 hover:bg-zinc-50 disabled:opacity-40"
+            onClick={() => setPage((prev) => prev - 1)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-600 transition hover:bg-zinc-50 disabled:opacity-40"
           >
-            ‹
+            <ChevronLeft className="size-3.5" />
           </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPage(p)}
-              className={`flex h-8 w-8 items-center justify-center rounded text-sm font-medium ${
-                p === page ? "bg-emerald-600 text-white" : "border border-zinc-200 text-zinc-600 hover:bg-zinc-50"
-              }`}
-            >
-              {p}
-            </button>
-          ))}
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+            (currentPage) => (
+              <button
+                key={currentPage}
+                onClick={() => setPage(currentPage)}
+                className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-semibold transition ${
+                  currentPage === page
+                    ? "bg-emerald-600 text-white"
+                    : "border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50"
+                }`}
+              >
+                {currentPage}
+              </button>
+            ),
+          )}
+
           <button
             disabled={page >= totalPages}
-            onClick={() => setPage((p) => p + 1)}
-            className="flex h-8 w-8 items-center justify-center rounded border border-zinc-200 text-sm text-zinc-600 hover:bg-zinc-50 disabled:opacity-40"
+            onClick={() => setPage((prev) => prev + 1)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-600 transition hover:bg-zinc-50 disabled:opacity-40"
           >
-            ›
+            <ChevronRight className="size-3.5" />
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

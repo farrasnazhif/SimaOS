@@ -1,17 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import {
   AlertCircle,
   ArrowUpRight,
   CheckCircle2,
-  DollarSign,
-  FileText,
-  Filter,
+  Factory,
+  Truck,
   XCircle,
 } from "lucide-react";
-
-import Button from "@/components/ui/buttons/button";
 
 import IncomingLotsTable from "@/features/lots/components/incoming-lots-table";
 import { useLotsQuery } from "@/features/lots/queries/lots-queries";
@@ -20,14 +16,12 @@ export default function LotsPage() {
   const { data: lots } = useLotsQuery();
 
   const pendingQc = lots?.filter((l) => l.status === "in_qc").length ?? 0;
-
   const approved = lots?.filter((l) => l.status === "approved").length ?? 0;
-
   const rejected = lots?.filter((l) => l.status === "rejected").length ?? 0;
-
+  const inProduction =
+    lots?.filter((l) => l.status === "in_production").length ?? 0;
+  const arriving = lots?.filter((l) => l.status === "arriving").length ?? 0;
   const totalLots = lots?.length ?? 0;
-  const totalStock =
-    lots?.reduce((sum, l) => sum + (Number(l.quantity_kg) || 0), 0) ?? 0;
 
   const kpis = [
     {
@@ -58,13 +52,22 @@ export default function LotsPage() {
       changeColor: "text-red-500",
     },
     {
-      title: "Total Stock",
-      value: `${totalStock.toLocaleString()} kg`,
-      change: `${totalLots} lots in system`,
-      icon: DollarSign,
-      iconBg: "bg-emerald-100",
-      iconColor: "text-emerald-600",
-      changeColor: "text-emerald-600",
+      title: "In Production",
+      value: inProduction,
+      change: `${inProduction} active`,
+      icon: Factory,
+      iconBg: "bg-blue-100",
+      iconColor: "text-blue-600",
+      changeColor: "text-blue-600",
+    },
+    {
+      title: "Arriving",
+      value: arriving,
+      change: `${arriving} incoming`,
+      icon: Truck,
+      iconBg: "bg-zinc-100",
+      iconColor: "text-zinc-600",
+      changeColor: "text-zinc-600",
     },
   ];
 
@@ -72,17 +75,15 @@ export default function LotsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-bold tracking-tight text-zinc-900">
-          Inventory
-        </h1>
+        <h1 className="text-4xl font-semibold text-zinc-900">Inventory</h1>
 
-        <p className="mt-2 text-base text-zinc-500">
+        <p className="mt-1 text-base text-zinc-700">
           Manage incoming materials and Lots.
         </p>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-5 md:grid-cols-3 xl:grid-cols-5">
         {kpis.map((item) => {
           const Icon = item.icon;
 
@@ -100,12 +101,12 @@ export default function LotsPage() {
                   </div>
 
                   <div>
-                    <h3 className="text-2xl font-semibold text-zinc-900">
+                    <h3 className="text-md font-semibold text-zinc-900">
                       {item.title}
                     </h3>
 
                     <p
-                      className={`mt-1 text-sm font-medium ${item.changeColor}`}
+                      className={`mt-1 text-xs font-medium ${item.changeColor}`}
                     >
                       {item.change}
                     </p>
@@ -118,9 +119,9 @@ export default function LotsPage() {
                   {item.value}
                 </h2>
 
-                <button className="flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200 text-zinc-700 transition hover:bg-zinc-50">
+                {/* <button className="flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200 text-zinc-700 transition hover:bg-zinc-50">
                   <ArrowUpRight className="size-5" />
-                </button>
+                </button> */}
               </div>
             </div>
           );
