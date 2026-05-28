@@ -2,18 +2,15 @@
 
 import { useAuth } from "@/features/auth/hooks/use-auth";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import AppShell from "@/components/ui/app-shell";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.replace("/login");
-    }
-  }, [isLoading, isAuthenticated, router]);
 
   if (isLoading) {
     return (
@@ -23,7 +20,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated) router.push("/login");
 
   return <AppShell>{children}</AppShell>;
 }

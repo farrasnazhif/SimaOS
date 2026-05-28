@@ -27,7 +27,7 @@ const navSections = [
         icon: LayoutDashboard,
       },
       {
-        href: "/batches/new",
+        href: "/lots",
         label: "Inventory",
         icon: Factory,
       },
