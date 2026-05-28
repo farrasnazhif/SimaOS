@@ -31,6 +31,7 @@ export default function LotsKpiCards() {
       iconBg: "bg-amber-100",
       iconColor: "text-amber-500",
       changeColor: "text-amber-600",
+      status: "in_qc",
     },
     {
       title: "Approved",
@@ -40,6 +41,7 @@ export default function LotsKpiCards() {
       iconBg: "bg-emerald-100",
       iconColor: "text-emerald-600",
       changeColor: "text-emerald-600",
+      status: "approved",
     },
     {
       title: "Rejected",
@@ -49,6 +51,7 @@ export default function LotsKpiCards() {
       iconBg: "bg-red-100",
       iconColor: "text-red-500",
       changeColor: "text-red-500",
+      status: "rejected",
     },
     {
       title: "In Production",
@@ -58,6 +61,7 @@ export default function LotsKpiCards() {
       iconBg: "bg-blue-100",
       iconColor: "text-blue-600",
       changeColor: "text-blue-600",
+      status: "in_production",
     },
     {
       title: "Arriving",
@@ -67,6 +71,7 @@ export default function LotsKpiCards() {
       iconBg: "bg-zinc-100",
       iconColor: "text-zinc-600",
       changeColor: "text-zinc-600",
+      status: "arriving",
     },
   ];
 
@@ -100,7 +105,7 @@ export default function LotsKpiCards() {
               </h2>
 
               <Link
-                href="#"
+                href={`/lots/status/${item.status}`}
                 className="flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-50"
               >
                 <ArrowUpRight className="size-5" />
