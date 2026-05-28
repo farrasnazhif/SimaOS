@@ -25,13 +25,14 @@ export default function LotsPage() {
 
   const rejected = lots?.filter((l) => l.status === "rejected").length ?? 0;
 
-  const totalValue = lots?.reduce((sum, l) => sum + Number(l.quantity_kg), 0) ?? 0;
+  const totalLots = lots?.length ?? 0;
+  const totalStock = lots?.reduce((sum, l) => sum + (Number(l.quantity_kg) || 0), 0) ?? 0;
 
   const kpis = [
     {
       title: "Pending QC",
       value: pendingQc,
-      change: "+2 from Yesterday",
+      change: `${pendingQc} of ${totalLots} lots`,
       icon: AlertCircle,
       iconBg: "bg-amber-100",
       iconColor: "text-amber-500",
@@ -40,7 +41,7 @@ export default function LotsPage() {
     {
       title: "Approved",
       value: approved,
-      change: "+2 from Yesterday",
+      change: `${totalLots > 0 ? Math.round((approved / totalLots) * 100) : 0}% approval rate`,
       icon: CheckCircle2,
       iconBg: "bg-emerald-100",
       iconColor: "text-emerald-600",
@@ -49,7 +50,7 @@ export default function LotsPage() {
     {
       title: "Rejected",
       value: rejected,
-      change: "+2 from Yesterday",
+      change: `${totalLots > 0 ? Math.round((rejected / totalLots) * 100) : 0}% rejection rate`,
       icon: XCircle,
       iconBg: "bg-red-100",
       iconColor: "text-red-500",
@@ -57,8 +58,8 @@ export default function LotsPage() {
     },
     {
       title: "Total Stock",
-      value: `${totalValue.toLocaleString()} kg`,
-      change: "+2 from Yesterday",
+      value: `${totalStock.toLocaleString()} kg`,
+      change: `${totalLots} lots in system`,
       icon: DollarSign,
       iconBg: "bg-emerald-100",
       iconColor: "text-emerald-600",
