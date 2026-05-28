@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 
 const hiddenRoutes = ["/dashboard"];
 
-export default function Breadcrumb() {
+export default function Breadcrumb({ lastLabel }: { lastLabel?: string } = {}) {
   const pathname = usePathname();
 
   const paths = pathname.split("/").filter(Boolean);
@@ -28,9 +28,11 @@ export default function Breadcrumb() {
 
         const isLast = index === paths.length - 1;
 
-        const label = segment
-          .replace(/-/g, " ")
-          .replace(/\b\w/g, (char) => char.toUpperCase());
+        const label = isLast && lastLabel
+          ? lastLabel
+          : segment
+              .replace(/-/g, " ")
+              .replace(/\b\w/g, (char) => char.toUpperCase());
 
         return (
           <div key={href} className="flex items-center gap-2">
