@@ -1,103 +1,306 @@
 "use client";
 
 import { useState } from "react";
-import { BotMessageSquare, X } from "lucide-react";
+import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
-import { useCopilotMutation } from "../queries/copilot-queries";
-import Button from "@/components/ui/buttons/button";
+import { ArrowUp, X } from "lucide-react";
 
-type Message = { role: "user" | "assistant"; content: string };
+import { useCopilotMutation } from "../queries/copilot-queries";
+import IconButton from "@/components/ui/buttons/icon-button";
+
+type Message = {
+  role: "user" | "assistant";
+  content: string;
+};
 
 export default function FloatingCopilot() {
   const [isOpen, setIsOpen] = useState(false);
+
   const [input, setInput] = useState("");
+
   const [messages, setMessages] = useState<Message[]>([]);
+
   const mutation = useCopilotMutation();
 
   async function handleSend() {
     const question = input.trim();
+
     if (!question) return;
+
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: question }]);
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "user",
+        content: question,
+      },
+    ]);
 
     try {
       const answer = await mutation.mutateAsync(question);
-      setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: answer,
+        },
+      ]);
     } catch {
-      setMessages((prev) => [...prev, { role: "assistant", content: "Failed to get response." }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Failed to get response.",
+        },
+      ]);
     }
   }
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      <AnimatePresence>
+      {/* panel */}
+      <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="flex h-[420px] w-[360px] flex-col overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-xl"
+            initial={{
+              opacity: 0,
+              scale: 0.92,
+              y: 20,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0,
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.92,
+              y: 20,
+            }}
+            transition={{
+              duration: 0.2,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            style={{
+              transformOrigin: "bottom right",
+            }}
+            className="absolute bottom-20 right-0 flex h-[480px] w-[320px] flex-col overflow-hidden rounded-[32px] border border-zinc-200 bg-[#F4F7F6] shadow-[0_20px_70px_rgba(0,0,0,0.16)]"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-zinc-100 bg-emerald-50 px-4 py-3">
-              <div className="flex items-center gap-2">
-                <BotMessageSquare className="size-5 text-emerald-600" />
-                <span className="text-sm font-semibold text-zinc-800">Manufacturing Copilot</span>
-              </div>
-              <button onClick={() => setIsOpen(false)} className="text-zinc-400 hover:text-zinc-600">
-                <X className="size-4" />
-              </button>
-            </div>
+            {/* header */}
+            <div className="flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-4">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0E8752]">
+                    <Image
+                      src="/assets/sima-copilot.png"
+                      alt="Sima Copilot"
+                      width={20}
+                      height={20}
+                    />
+                  </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {messages.length === 0 && (
-                <p className="text-sm text-zinc-400">Ask about lots, suppliers, quality, or operations...</p>
-              )}
-              {messages.map((msg, i) => (
-                <div key={i} className={`text-sm ${msg.role === "user" ? "text-emerald-700" : "text-zinc-700"}`}>
-                  <span className="block text-[10px] font-bold uppercase text-zinc-400">
-                    {msg.role === "user" ? "You" : "Copilot"}
-                  </span>
-                  <p className="whitespace-pre-wrap">{msg.content}</p>
+                  <div>
+                    <h2 className="text-sm font-semibold leading-none text-zinc-900">
+                      Sima Copilot
+                    </h2>
+
+                    <p className="mt-1 text-xs text-zinc-500">
+                      AI operational assistant
+                    </p>
+                  </div>
                 </div>
-              ))}
-              {mutation.isPending && <p className="text-sm text-zinc-400 animate-pulse">Thinking...</p>}
+              </div>
             </div>
 
-            {/* Input */}
-            <div className="flex gap-2 border-t border-zinc-100 p-3">
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                placeholder="Ask the copilot..."
-                className="flex-1 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:border-emerald-400 focus:outline-none"
-              />
-              <Button variant="primary" size="sm" onClick={handleSend} isLoading={mutation.isPending}>
-                Send
-              </Button>
+            {/* body */}
+            <div className="flex flex-1 flex-col justify-end px-5">
+              {/* messages */}
+              <div className="overflow-y-auto">
+                {messages.length === 0 ? (
+                  <motion.div
+                    initial={{
+                      opacity: 0,
+                      y: 6,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    transition={{
+                      duration: 0.18,
+                    }}
+                  >
+                    <p className=" text-center text-sm text-zinc-900">
+                      Search reports, batches, and more…
+                    </p>
+
+                    {/* <div className="max-w-[230px] rounded-[24px] bg-[#ECECEC] px-4 py-4">
+                      <p className="text-sm leading-[1.6] text-zinc-900">
+                        Hi there, you're speaking with SimaOS AI Assistant. How
+                        can I help you today?
+                      </p>
+                    </div> */}
+
+                    {/* <p className="mt-2 text-[11px] text-zinc-400">
+                      Sima Copilot • Just now
+                    </p> */}
+                  </motion.div>
+                ) : (
+                  <div className="space-y-3">
+                    {messages.map((message, index) => {
+                      const isUser = message.role === "user";
+
+                      return (
+                        <motion.div
+                          key={`${message.role}-${index}`}
+                          initial={{
+                            opacity: 0,
+                            y: 6,
+                          }}
+                          animate={{
+                            opacity: 1,
+                            y: 0,
+                          }}
+                          transition={{
+                            duration: 0.14,
+                          }}
+                          className={`flex ${
+                            isUser ? "justify-end" : "justify-start"
+                          }`}
+                        >
+                          <div
+                            className={`max-w-[82%] rounded-[22px] px-4 py-3 text-sm leading-relaxed ${
+                              isUser
+                                ? "bg-[#0E8752] text-white"
+                                : "bg-white text-zinc-800 shadow-sm"
+                            }`}
+                          >
+                            {message.content}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+
+                    {mutation.isPending && (
+                      <div className="flex justify-start">
+                        <div className="rounded-[20px] bg-white px-4 py-3 shadow-sm">
+                          <div className="flex items-center gap-1">
+                            <div className="h-2 w-2 animate-bounce rounded-full bg-[#0E8752]" />
+                            <div className="h-2 w-2 animate-bounce rounded-full bg-[#0E8752] [animation-delay:0.15s]" />
+                            <div className="h-2 w-2 animate-bounce rounded-full bg-[#0E8752] [animation-delay:0.3s]" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* input */}
+              <div className="mt-3 mb-5 rounded-[24px] border-2 border-zinc-300 bg-white p-4">
+                <textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+
+                      handleSend();
+                    }
+                  }}
+                  placeholder="Message..."
+                  rows={1}
+                  className="min-h-[24px] w-full resize-none bg-transparent text-sm text-zinc-800 outline-none placeholder:text-zinc-400"
+                />
+
+                <div className="mt-4 flex items-center justify-end">
+                  <IconButton
+                    onClick={handleSend}
+                    disabled={mutation.isPending}
+                    size="sm"
+                    icon={ArrowUp}
+                  />
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* FAB — hidden when panel is open */}
-      <AnimatePresence>
-        {!isOpen && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0 }}
-            transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            onClick={() => setIsOpen(true)}
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-colors"
-          >
-            <BotMessageSquare className="size-6" />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {/* fab */}
+      <motion.button
+        onClick={() => setIsOpen((prev) => !prev)}
+        whileHover={{
+          scale: 1.04,
+        }}
+        whileTap={{
+          scale: 0.96,
+        }}
+        transition={{
+          duration: 0.16,
+          ease: [0.16, 1, 0.3, 1],
+        }}
+        className="absolute bottom-0 right-0 z-[60] flex h-14 w-14 items-center justify-center rounded-full bg-[#0E8752] text-white shadow-[0_12px_40px_rgba(16,185,129,0.35)]"
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          {isOpen ? (
+            <motion.div
+              key="close"
+              initial={{
+                opacity: 0,
+                rotate: -90,
+                scale: 0.8,
+              }}
+              animate={{
+                opacity: 1,
+                rotate: 0,
+                scale: 1,
+              }}
+              exit={{
+                opacity: 0,
+                rotate: 90,
+                scale: 0.8,
+              }}
+              transition={{
+                duration: 0.14,
+              }}
+            >
+              <X className="size-6" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="bot"
+              initial={{
+                opacity: 0,
+                rotate: 90,
+                scale: 0.8,
+              }}
+              animate={{
+                opacity: 1,
+                rotate: 0,
+                scale: 1,
+              }}
+              exit={{
+                opacity: 0,
+                rotate: -90,
+                scale: 0.8,
+              }}
+              transition={{
+                duration: 0.14,
+              }}
+            >
+              <Image
+                width={24}
+                height={24}
+                alt="Sima Copilot"
+                src="/assets/sima-copilot.png"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.button>
     </div>
   );
 }

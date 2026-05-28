@@ -21,7 +21,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
   const logoutMutation = useLogoutMutation();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-green-50/30">
+    <div className="min-h-screen bg-[#EFF5F3]">
       <Sidebar />
 
       <header
@@ -85,8 +85,8 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
 
       <main
         className={cn(
-          "p-6 transition-all duration-300 bg-[#EFF5F3]",
-          open ? "ml-64" : "ml-16",
+          "p-6 transition-all duration-300 ",
+          open ? "ml-64" : "ml-20",
         )}
       >
         {children}
