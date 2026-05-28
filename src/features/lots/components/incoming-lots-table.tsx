@@ -234,7 +234,7 @@ export default function IncomingLotsTable() {
 
       {/* table */}
       <div className="px-6 pb-6">
-        <div className="overflow-hidden rounded-[28px] border border-emerald-100">
+        <div className="overflow-hidden rounded-[16px] border border-emerald-100">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-zinc-100">

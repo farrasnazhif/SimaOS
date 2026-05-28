@@ -6,9 +6,6 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Factory,
-  GitBranch,
-  ShieldCheck,
-  Wrench,
   Settings,
   HelpCircle,
   PanelLeftClose,
@@ -31,25 +28,25 @@ const navSections = [
         label: "Inventory",
         icon: Factory,
       },
-      {
-        href: "/traceability",
-        label: "Traceability",
-        icon: GitBranch,
-      },
+      // {
+      //   href: "/traceability",
+      //   label: "Traceability",
+      //   icon: GitBranch,
+      // },
     ],
   },
   {
-    title: "OPERATIONS",
+    title: "SYSTEM",
     items: [
       {
-        href: "/quality-control",
-        label: "Quality Control",
-        icon: ShieldCheck,
+        href: "/settings",
+        label: "Settings",
+        icon: Settings,
       },
       {
-        href: "/maintenance",
-        label: "Maintenance",
-        icon: Wrench,
+        href: "/support",
+        label: "Support",
+        icon: HelpCircle,
       },
     ],
   },
@@ -140,7 +137,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-emerald-100 p-3">
+      {/* <div className="border-t border-emerald-100 p-3">
         <div className="space-y-0">
           <Link
             href="#"
@@ -164,17 +161,9 @@ export default function Sidebar() {
             <HelpCircle className="size-4 shrink-0" />
             {open && <span>Support</span>}
           </Link>
-          {/* <Button
-            variant="destructive"
-            onClick={() => logoutMutation.mutate()}
-            title={!open ? "Log Out" : undefined}
-            leftIcon={LogOut}
-            className="w-full"
-          >
-            {open && <span>Log Out</span>}
-          </Button> */}
+         
         </div>
-      </div>
+      </div> */}
     </aside>
   );
 }

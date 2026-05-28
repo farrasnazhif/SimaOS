@@ -2,7 +2,6 @@
 
 import {
   AlertCircle,
-  ArrowUpRight,
   CheckCircle2,
   Factory,
   Truck,
@@ -90,7 +89,7 @@ export default function LotsPage() {
           return (
             <div
               key={item.title}
-              className="rounded-3xl border border-emerald-100 bg-white p-5 shadow-sm"
+              className="rounded-[16px] border border-emerald-100 bg-white p-5 shadow-sm"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4">
