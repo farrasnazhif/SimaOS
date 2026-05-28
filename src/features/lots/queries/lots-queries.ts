@@ -11,6 +11,7 @@ export type Lot = {
   arrival_date: string;
   status: string;
   warehouse_zone: string | null;
+  quantity_kg: number;
   supplier: { name: string } | null;
 };
 
@@ -63,7 +64,7 @@ export function useLotsQuery() {
       const supabase = getSupabaseBrowserClient();
       const { data, error } = await supabase
         .from("lots")
-        .select("id, lot_number, material_name, arrival_date, status, warehouse_zone, supplier:suppliers(name)")
+        .select("id, lot_number, material_name, arrival_date, status, warehouse_zone, quantity_kg, supplier:suppliers(name)")
         .order("arrival_date", { ascending: false });
       if (error) throw error;
       return data as Lot[];
