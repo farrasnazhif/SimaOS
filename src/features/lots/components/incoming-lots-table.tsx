@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useLotsQuery } from "../queries/lots-queries";
+import { Download, Filter } from "lucide-react";
 
 const statusConfig: Record<string, { label: string; color: string }> = {
   approved: { label: "Approved", color: "bg-green-50 text-green-700 border-green-200" },
@@ -10,6 +12,8 @@ const statusConfig: Record<string, { label: string; color: string }> = {
   in_production: { label: "In Production", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
   arriving: { label: "Arriving", color: "bg-zinc-50 text-zinc-600 border-zinc-200" },
 };
+
+const PAGE_SIZE = 5;
 
 function StatusBadge({ status }: { status: string }) {
   const config = statusConfig[status] ?? { label: status, color: "bg-zinc-50 text-zinc-600 border-zinc-200" };
@@ -22,6 +26,32 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function IncomingLotsTable() {
   const { data: lots, isLoading, error } = useLotsQuery();
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [page, setPage] = useState(1);
+
+  const filtered = useMemo(() => {
+    if (!lots) return [];
+    if (statusFilter === "all") return lots;
+    return lots.filter((l) => l.status === statusFilter);
+  }, [lots, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  function exportCsv() {
+    if (!filtered.length) return;
+    const header = "Lot ID,Material,Supplier,Arrival Date,Status\n";
+    const rows = filtered
+      .map((l) => `${l.lot_number},${l.material_name},${l.supplier?.name ?? ""},${l.arrival_date},${l.status}`)
+      .join("\n");
+    const blob = new Blob([header + rows], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "lots-export.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   if (isLoading) {
     return <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-400">Loading lots...</div>;
@@ -35,18 +65,43 @@ export default function IncomingLotsTable() {
 
   return (
     <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+      {/* Header */}
       <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4">
         <div className="flex items-center gap-3">
           <h4 className="text-lg font-semibold text-zinc-900">Lots List</h4>
           <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
-            {lots.length} entries
+            {filtered.length} entries
           </span>
         </div>
-        <Link href="/batches/new" className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700">
-          + Create Batch
-        </Link>
+        <div className="flex items-center gap-2">
+          {/* Filter */}
+          <div className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5">
+            <Filter className="size-3.5 text-zinc-400" />
+            <select
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+              className="border-none bg-transparent p-0 text-sm text-zinc-700 focus:outline-none focus:ring-0"
+            >
+              <option value="all">All Status</option>
+              <option value="in_qc">In QC</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="in_production">In Production</option>
+              <option value="arriving">Arriving</option>
+            </select>
+          </div>
+          {/* Export */}
+          <button
+            onClick={exportCsv}
+            className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-sm text-zinc-600 hover:bg-zinc-50 transition-colors"
+          >
+            <Download className="size-3.5" />
+            Export CSV
+          </button>
+        </div>
       </div>
 
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
@@ -59,7 +114,7 @@ export default function IncomingLotsTable() {
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-50">
-            {lots.map((lot) => (
+            {paginated.map((lot) => (
               <tr key={lot.id} className="transition-colors hover:bg-emerald-50/30">
                 <td className="px-6 py-3.5 text-sm font-semibold text-emerald-700">
                   <Link href={`/lots/${lot.id}`} className="hover:underline">{lot.lot_number}</Link>
@@ -72,6 +127,40 @@ export default function IncomingLotsTable() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between border-t border-zinc-100 px-6 py-3">
+        <span className="text-sm text-zinc-500">
+          Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+        </span>
+        <div className="flex gap-1">
+          <button
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
+            className="flex h-8 w-8 items-center justify-center rounded border border-zinc-200 text-sm text-zinc-600 hover:bg-zinc-50 disabled:opacity-40"
+          >
+            ‹
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className={`flex h-8 w-8 items-center justify-center rounded text-sm font-medium ${
+                p === page ? "bg-emerald-600 text-white" : "border border-zinc-200 text-zinc-600 hover:bg-zinc-50"
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+          <button
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => p + 1)}
+            className="flex h-8 w-8 items-center justify-center rounded border border-zinc-200 text-sm text-zinc-600 hover:bg-zinc-50 disabled:opacity-40"
+          >
+            ›
+          </button>
+        </div>
       </div>
     </div>
   );

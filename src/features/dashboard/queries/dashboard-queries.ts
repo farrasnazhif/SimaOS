@@ -5,10 +5,10 @@ import { useQuery } from "@tanstack/react-query";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export type DashboardKpi = {
-  totalLots: number;
   pendingQc: number;
-  approvedToday: number;
-  rejectedToday: number;
+  approved: number;
+  rejected: number;
+  totalValue: number;
 };
 
 export function useDashboardKpiQuery() {
@@ -16,21 +16,24 @@ export function useDashboardKpiQuery() {
     queryKey: ["dashboard", "kpi"],
     queryFn: async () => {
       const supabase = getSupabaseBrowserClient();
-      const today = new Date().toISOString().slice(0, 10);
-
       const lotsTable = supabase.from("lots") as any;
-      const [total, pending, approved, rejected] = await Promise.all([
-        lotsTable.select("id", { count: "exact", head: true }),
+
+      const [pending, approved, rejected, totalValue] = await Promise.all([
         lotsTable.select("id", { count: "exact", head: true }).eq("status", "in_qc"),
-        lotsTable.select("id", { count: "exact", head: true }).eq("status", "approved").gte("updated_at", today),
-        lotsTable.select("id", { count: "exact", head: true }).eq("status", "rejected").gte("updated_at", today),
+        lotsTable.select("id", { count: "exact", head: true }).eq("status", "approved"),
+        lotsTable.select("id", { count: "exact", head: true }).eq("status", "rejected"),
+        lotsTable.select("quantity_kg"),
       ]);
 
+      const total = (totalValue.data as { quantity_kg: number }[] | null)?.reduce(
+        (sum: number, row: { quantity_kg: number }) => sum + Number(row.quantity_kg), 0
+      ) ?? 0;
+
       return {
-        totalLots: total.count ?? 0,
         pendingQc: pending.count ?? 0,
-        approvedToday: approved.count ?? 0,
-        rejectedToday: rejected.count ?? 0,
+        approved: approved.count ?? 0,
+        rejected: rejected.count ?? 0,
+        totalValue: total,
       } as DashboardKpi;
     },
   });
