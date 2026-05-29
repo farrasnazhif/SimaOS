@@ -50,33 +50,6 @@ const statusConfig: Record<
   },
 };
 
-const filterOptions = [
-  {
-    label: "All Status",
-    value: "all",
-  },
-  {
-    label: "Approved",
-    value: "approved",
-  },
-  {
-    label: "Awaiting QC",
-    value: "in_qc",
-  },
-  {
-    label: "Rejected",
-    value: "rejected",
-  },
-  {
-    label: "In Production",
-    value: "in_production",
-  },
-  {
-    label: "Arriving",
-    value: "arriving",
-  },
-];
-
 function StatusBadge({ status }: { status: string }) {
   const config = statusConfig[status] ?? statusConfig.arriving;
 
@@ -93,20 +66,55 @@ export default function IncomingLotsTable() {
   const { data: lots, isLoading, error } = useLotsQuery();
 
   const [statusFilter, setStatusFilter] = useState("all");
-
+  const [materialFilter, setMaterialFilter] = useState("all");
+  const [supplierFilter, setSupplierFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [gradeFilter, setGradeFilter] = useState("all");
   const [page, setPage] = useState(1);
-
   const [filterOpen, setFilterOpen] = useState(false);
+
+  const materials = useMemo(() => {
+    if (!lots) return [];
+    return [...new Set(lots.map((l) => l.material_name))].sort();
+  }, [lots]);
+
+  const suppliers = useMemo(() => {
+    if (!lots) return [];
+    return [
+      ...new Set(lots.map((l) => l.supplier?.name).filter(Boolean)),
+    ].sort() as string[];
+  }, [lots]);
 
   const filteredLots = useMemo(() => {
     if (!lots) return [];
+    const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);
+    const weekAgo = new Date(now.getTime() - 7 * 86400000)
+      .toISOString()
+      .slice(0, 10);
+    const monthAgo = new Date(now.getTime() - 30 * 86400000)
+      .toISOString()
+      .slice(0, 10);
 
-    if (statusFilter === "all") {
-      return lots;
-    }
-
-    return lots.filter((lot) => lot.status === statusFilter);
-  }, [lots, statusFilter]);
+    return lots.filter((lot) => {
+      if (statusFilter !== "all" && lot.status !== statusFilter) return false;
+      if (materialFilter !== "all" && lot.material_name !== materialFilter)
+        return false;
+      if (supplierFilter !== "all" && lot.supplier?.name !== supplierFilter)
+        return false;
+      if (dateFilter === "today" && lot.arrival_date !== todayStr) return false;
+      if (dateFilter === "week" && lot.arrival_date < weekAgo) return false;
+      if (dateFilter === "month" && lot.arrival_date < monthAgo) return false;
+      if (gradeFilter !== "all") {
+        const score = lot.qc_inspections?.[0]?.ai_quality_score;
+        if (score == null) return false;
+        if (gradeFilter === "high" && score < 80) return false;
+        if (gradeFilter === "medium" && (score < 60 || score >= 80)) return false;
+        if (gradeFilter === "low" && score >= 60) return false;
+      }
+      return true;
+    });
+  }, [lots, statusFilter, materialFilter, supplierFilter, dateFilter, gradeFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredLots.length / PAGE_SIZE));
 
@@ -168,7 +176,7 @@ export default function IncomingLotsTable() {
   }
 
   return (
-    <section className="overflow-hidden rounded-[32px] border border-emerald-100 bg-white">
+    <section className="flex min-h-[700px] flex-col overflow-hidden rounded-[32px] border border-emerald-100 bg-white">
       {/* top */}
       <div className="flex flex-col gap-5 px-8 py-7 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-4">
@@ -201,30 +209,152 @@ export default function IncomingLotsTable() {
             </Button>
 
             {filterOpen && (
-              <div className="absolute right-0 top-12 z-50 w-[190px] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl">
+              <div className="absolute right-0 top-12 z-50 w-[220px] max-h-[400px] overflow-y-auto overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl">
                 <div className="p-2">
-                  {filterOptions.map((option) => {
-                    const isActive = statusFilter === option.value;
+                  <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    Status
+                  </p>
+                  {[
+                    { label: "All Status", value: "all" },
+                    { label: "Approved", value: "approved" },
+                    { label: "Awaiting QC", value: "in_qc" },
+                    { label: "Rejected", value: "rejected" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        setStatusFilter(option.value);
+                        setPage(1);
+                      }}
+                      className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${
+                        statusFilter === option.value
+                          ? "bg-emerald-50 font-semibold text-emerald-700"
+                          : "text-zinc-600 hover:bg-zinc-50"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
 
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => {
-                          setStatusFilter(option.value);
-                          setPage(1);
-                          setFilterOpen(false);
-                        }}
-                        className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${
-                          isActive
-                            ? "bg-emerald-50 font-semibold text-emerald-700"
-                            : "text-zinc-600 hover:bg-zinc-50"
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
+                  <p className="mt-2 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    Material
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMaterialFilter("all");
+                      setPage(1);
+                    }}
+                    className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${
+                      materialFilter === "all"
+                        ? "bg-emerald-50 font-semibold text-emerald-700"
+                        : "text-zinc-600 hover:bg-zinc-50"
+                    }`}
+                  >
+                    All Materials
+                  </button>
+                  {materials.map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => {
+                        setMaterialFilter(m);
+                        setPage(1);
+                      }}
+                      className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${
+                        materialFilter === m
+                          ? "bg-emerald-50 font-semibold text-emerald-700"
+                          : "text-zinc-600 hover:bg-zinc-50"
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+
+                  <p className="mt-2 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    Supplier
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSupplierFilter("all");
+                      setPage(1);
+                    }}
+                    className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${
+                      supplierFilter === "all"
+                        ? "bg-emerald-50 font-semibold text-emerald-700"
+                        : "text-zinc-600 hover:bg-zinc-50"
+                    }`}
+                  >
+                    All Suppliers
+                  </button>
+                  {suppliers.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => {
+                        setSupplierFilter(s);
+                        setPage(1);
+                      }}
+                      className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${
+                        supplierFilter === s
+                          ? "bg-emerald-50 font-semibold text-emerald-700"
+                          : "text-zinc-600 hover:bg-zinc-50"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+
+                  <p className="mt-2 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    Arrival Date
+                  </p>
+                  {[
+                    { label: "All Time", value: "all" },
+                    { label: "Today", value: "today" },
+                    { label: "This Week", value: "week" },
+                    { label: "This Month", value: "month" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        setDateFilter(option.value);
+                        setPage(1);
+                      }}
+                      className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${
+                        dateFilter === option.value
+                          ? "bg-emerald-50 font-semibold text-emerald-700"
+                          : "text-zinc-600 hover:bg-zinc-50"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+
+                  <p className="mt-2 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    Grade
+                  </p>
+                  {[
+                    { label: "All Grades", value: "all" },
+                    { label: "High (80+)", value: "high" },
+                    { label: "Medium (60–79)", value: "medium" },
+                    { label: "Low (&lt;60)", value: "low" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => { setGradeFilter(option.value); setPage(1); }}
+                      className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${
+                        gradeFilter === option.value
+                          ? "bg-emerald-50 font-semibold text-emerald-700"
+                          : "text-zinc-600 hover:bg-zinc-50"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
@@ -233,7 +363,7 @@ export default function IncomingLotsTable() {
       </div>
 
       {/* table */}
-      <div className="px-6 pb-6">
+      <div className="flex-1 px-6 pb-6">
         <div className="overflow-hidden rounded-[16px] border border-emerald-100">
           <table className="w-full border-collapse">
             <thead>
@@ -329,7 +459,7 @@ export default function IncomingLotsTable() {
       </div>
 
       {/* pagination */}
-      <div className="flex items-center justify-center border-t border-zinc-100 px-6 py-4">
+      <div className="mt-auto flex items-center justify-center border-t border-zinc-100 px-6 py-4">
         <div className="flex items-center gap-1.5">
           <button
             disabled={page <= 1}

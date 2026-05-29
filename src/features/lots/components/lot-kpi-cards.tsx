@@ -57,7 +57,7 @@ export default function LotKpiCards() {
       iconBg: "bg-amber-100",
       iconColor: "text-amber-500",
       changeColor: "text-amber-600",
-      href: "/lots?status=in_qc",
+      href: "/lots/status/in_qc",
     },
     {
       title: "Approved Today",
@@ -68,7 +68,7 @@ export default function LotKpiCards() {
       iconBg: "bg-emerald-100",
       iconColor: "text-emerald-600",
       changeColor: "text-emerald-600",
-      href: "/lots?status=approved",
+      href: "/lots/status/approved",
     },
     {
       title: "Rejection Rate",
@@ -80,7 +80,7 @@ export default function LotKpiCards() {
       iconColor: "text-red-500",
       changeColor:
         Number(rateChange) <= 0 ? "text-emerald-600" : "text-red-600",
-      href: "/lots?status=rejected",
+      href: "/lots/status/rejected",
     },
   ];
 
