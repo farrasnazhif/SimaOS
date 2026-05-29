@@ -178,3 +178,22 @@ export function useLotDecisionMutation() {
     },
   });
 }
+
+export function useDeleteLotMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (lotId: string) => {
+      const supabase = getSupabaseBrowserClient();
+      // Delete related records first (cascade may handle it, but be explicit)
+      await (supabase.from("lot_images") as any).delete().eq("lot_id", lotId);
+      await (supabase.from("batch_events") as any).delete().eq("lot_id", lotId);
+      await (supabase.from("qc_inspections") as any).delete().eq("lot_id", lotId);
+      await (supabase.from("alerts") as any).delete().eq("lot_id", lotId);
+      const { error } = await (supabase.from("lots") as any).delete().eq("id", lotId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: lotsKeys.list });
+    },
+  });
+}

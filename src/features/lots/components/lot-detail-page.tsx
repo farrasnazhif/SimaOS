@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useLotDetailQuery } from "../queries/lots-queries";
 import { useLotDecisionMutation } from "../queries/lots-queries";
+import { useDeleteLotMutation } from "../queries/lots-queries";
 import {
   ChevronDown,
   ChevronUp,
@@ -11,11 +13,13 @@ import {
   ClockFading,
   Eye,
   Layers3,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumb from "@/components/ui/breadcrumb";
 import Skeleton from "@/components/ui/skeleton";
 import Button from "@/components/ui/buttons/button";
+import IconButton from "@/components/ui/buttons/icon-button";
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { bg: string; text: string; label: string }> = {
@@ -134,6 +138,9 @@ function LotActions({
   inspectionId?: string;
 }) {
   const mutation = useLotDecisionMutation();
+  const deleteMutation = useDeleteLotMutation();
+  const router = useRouter();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   function handleAction(decision: "approved" | "rejected" | "revoked") {
     toast.promise(
@@ -147,41 +154,125 @@ function LotActions({
     );
   }
 
-  if (!inspectionId) return null;
+  function handleDelete() {
+    setShowDeleteConfirm(false);
+    toast.promise(
+      deleteMutation.mutateAsync(lotId).then(() => router.push("/lots")),
+      {
+        loading: "Deleting lot...",
+        success: "Lot deleted.",
+        error: "Failed to delete.",
+      },
+    );
+  }
+
+  const deleteModal = showDeleteConfirm && (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center"
+      onClick={() => setShowDeleteConfirm(false)}
+    >
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
+      <div
+        className="relative w-full max-w-sm rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-lg font-semibold text-zinc-900">Delete Lot</h3>
+        <p className="mt-2 text-sm text-zinc-500">
+          Are you sure you want to delete this lot? This action cannot be
+          undone.
+        </p>
+        <div className="mt-6 flex justify-end gap-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setShowDeleteConfirm(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            leftIcon={Trash2}
+            onClick={handleDelete}
+            isLoading={deleteMutation.isPending}
+          >
+            Delete Lot
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (!inspectionId)
+    return (
+      <>
+        {deleteModal}
+        <Button
+          variant="destructive"
+          onClick={() => setShowDeleteConfirm(true)}
+          isLoading={deleteMutation.isPending}
+          leftIcon={Trash2}
+        >
+          Delete
+        </Button>
+      </>
+    );
 
   const hasDecision = status === "approved" || status === "rejected";
 
   if (hasDecision) {
     return (
-      <Button
-        onClick={() => handleAction("revoked")}
-        isLoading={mutation.isPending}
-        leftIcon={ClockFading}
-        className="bg-[#F88D00] text-white hover:bg-[#E07F00] disabled:bg-[#F6B85C] disabled:text-white/80 disabled:cursor-not-allowed"
-      >
-        {status === "approved" ? "Revoke Approval" : "Revoke Rejection"}
-      </Button>
+      <>
+        {deleteModal}
+        <div className="flex gap-3">
+          <Button
+            onClick={() => handleAction("revoked")}
+            isLoading={mutation.isPending}
+            leftIcon={ClockFading}
+            className="bg-[#F88D00] text-white hover:bg-[#E07F00] disabled:bg-[#F6B85C] disabled:text-white/80 disabled:cursor-not-allowed"
+          >
+            {status === "approved" ? "Revoke Approval" : "Revoke Rejection"}
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => setShowDeleteConfirm(true)}
+            isLoading={deleteMutation.isPending}
+            leftIcon={Trash2}
+          >
+            Delete
+          </Button>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="flex gap-3">
-      <Button
-        variant="destructive"
-        onClick={() => handleAction("rejected")}
-        isLoading={mutation.isPending}
-        leftIcon={CircleX}
-      >
-        Reject Batch
-      </Button>
-      <Button
-        onClick={() => handleAction("approved")}
-        isLoading={mutation.isPending}
-        leftIcon={CircleCheckBig}
-      >
-        Approve Batch
-      </Button>
-    </div>
+    <>
+      {deleteModal}
+      <div className="flex gap-3">
+        <Button
+          variant="destructive"
+          onClick={() => handleAction("rejected")}
+          isLoading={mutation.isPending}
+          leftIcon={CircleX}
+        >
+          Reject Batch
+        </Button>
+        <Button
+          onClick={() => handleAction("approved")}
+          isLoading={mutation.isPending}
+          leftIcon={CircleCheckBig}
+        >
+          Approve Batch
+        </Button>
+        <IconButton
+          icon={Trash2}
+          variant="destructive"
+          onClick={() => setShowDeleteConfirm(true)}
+          isLoading={deleteMutation.isPending}
+        />
+      </div>
+    </>
   );
 }
 

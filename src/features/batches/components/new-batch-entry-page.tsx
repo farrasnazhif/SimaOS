@@ -60,6 +60,7 @@ export default function NewBatchEntryPage() {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = React.useState(false);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
+  const [fileName, setFileName] = React.useState<string | null>(null);
   const [analysis, setAnalysis] = React.useState<InspectionAnalysis | null>(
     null,
   );
@@ -84,7 +85,6 @@ export default function NewBatchEntryPage() {
 
   const materialType = useWatch({ control, name: "materialType" });
   const supplier = useWatch({ control, name: "supplier" });
-  const selectedPhoto = useWatch({ control, name: "inspectionPhoto" });
 
   React.useEffect(() => {
     return () => {
@@ -101,6 +101,7 @@ export default function NewBatchEntryPage() {
 
     setAnalysis(null);
     setPreviewUrl(file ? URL.createObjectURL(file) : null);
+    setFileName(file?.name ?? null);
     setValue("inspectionPhoto", file, {
       shouldDirty: true,
       shouldTouch: true,
@@ -179,12 +180,12 @@ export default function NewBatchEntryPage() {
                 onSubmit={handleSubmit(async (data) => {
                   const promise = onSubmit(data);
                   toast.promise(promise, {
-                    loading: "Running inspection reasoning and saving batch...",
+                    loading: "Running inspection and saving batch...",
                     success: "Batch saved to inventory successfully.",
                     error: (error) =>
                       error instanceof Error
                         ? error.message
-                        : "Unable to complete inspection reasoning.",
+                        : "Unable to complete inspection.",
                   });
                   await promise;
                 })}
@@ -297,7 +298,7 @@ export default function NewBatchEntryPage() {
 
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => { if (fileInputRef.current) fileInputRef.current.value = ""; fileInputRef.current?.click(); }}
                 className="w-full"
               >
                 <div className="flex  flex-col items-center justify-center text-center">
@@ -316,7 +317,7 @@ export default function NewBatchEntryPage() {
                         </h2>
 
                         <p className="mt-2 text-sm text-zinc-500">
-                          {selectedPhoto?.name}
+                          {fileName}
                         </p>
 
                         <p className="mt-3 text-sm text-zinc-500">

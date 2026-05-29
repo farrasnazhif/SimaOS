@@ -30,19 +30,12 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
   (
     {
       className,
-
       disabled: buttonDisabled,
-
       isLoading,
-
       variant = "primary",
-
       size = "base",
-
       icon: Icon,
-
       iconClassName,
-
       ...rest
     },
 
@@ -56,7 +49,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         type="button"
         disabled={disabled}
         className={cn(
-          "relative inline-flex items-center justify-center rounded-full",
+          "relative inline-flex items-center justify-center rounded-lg",
           "transition-all duration-200",
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/20",
           "disabled:cursor-not-allowed disabled:opacity-50",
