@@ -196,7 +196,7 @@ function LotActions({
             onClick={handleDelete}
             isLoading={deleteMutation.isPending}
           >
-            Delete Lot
+            Delete
           </Button>
         </div>
       </div>
@@ -207,14 +207,12 @@ function LotActions({
     return (
       <>
         {deleteModal}
-        <Button
+        <IconButton
+          icon={Trash2}
           variant="destructive"
           onClick={() => setShowDeleteConfirm(true)}
           isLoading={deleteMutation.isPending}
-          leftIcon={Trash2}
-        >
-          Delete
-        </Button>
+        />
       </>
     );
 
@@ -233,14 +231,12 @@ function LotActions({
           >
             {status === "approved" ? "Revoke Approval" : "Revoke Rejection"}
           </Button>
-          <Button
+          <IconButton
+            icon={Trash2}
             variant="destructive"
             onClick={() => setShowDeleteConfirm(true)}
             isLoading={deleteMutation.isPending}
-            leftIcon={Trash2}
-          >
-            Delete
-          </Button>
+          />
         </div>
       </>
     );

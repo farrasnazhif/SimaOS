@@ -14,7 +14,6 @@ import Button from "@/components/ui/buttons/button";
 import Input from "@/components/ui/input";
 import Select from "@/components/ui/select";
 import { useQc } from "@/features/qc/hooks/use-qc";
-import { InspectionAnalysis } from "@/features/qc/types/qc-types";
 import { cn } from "@/lib/utils";
 
 type BatchIntakeFormValues = {
@@ -61,9 +60,7 @@ export default function NewBatchEntryPage() {
   const [isDragging, setIsDragging] = React.useState(false);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
   const [fileName, setFileName] = React.useState<string | null>(null);
-  const [analysis, setAnalysis] = React.useState<InspectionAnalysis | null>(
-    null,
-  );
+
   const { createBatchWithQc, isProcessing } = useQc();
 
   const {
@@ -86,20 +83,23 @@ export default function NewBatchEntryPage() {
   const materialType = useWatch({ control, name: "materialType" });
   const supplier = useWatch({ control, name: "supplier" });
 
+  const previewUrlRef = React.useRef(previewUrl);
+  // eslint-disable-next-line react-hooks/refs
+  previewUrlRef.current = previewUrl;
+
   React.useEffect(() => {
     return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
       }
     };
-  }, [previewUrl]);
+  }, []);
 
   function updateSelectedFile(file: File | null) {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
 
-    setAnalysis(null);
     setPreviewUrl(file ? URL.createObjectURL(file) : null);
     setFileName(file?.name ?? null);
     setValue("inspectionPhoto", file, {
@@ -135,14 +135,12 @@ export default function NewBatchEntryPage() {
     }
 
     const imageDataUrl = await fileToDataUrl(data.inspectionPhoto);
-    const result = await createBatchWithQc({
+    await createBatchWithQc({
       materialType: data.materialType,
       supplier: data.supplier,
       quantityKg: Number(data.quantityKg),
       imageDataUrl,
     });
-
-    setAnalysis(result.analysis);
   }
 
   return (
@@ -192,6 +190,7 @@ export default function NewBatchEntryPage() {
               >
                 <Select
                   label="Material Type"
+                  required
                   placeholder="Select material type..."
                   value={materialType}
                   error={errors.materialType?.message}
@@ -208,6 +207,7 @@ export default function NewBatchEntryPage() {
 
                 <Select
                   label="Supplier"
+                  required
                   placeholder="Select certified supplier..."
                   value={supplier}
                   error={errors.supplier?.message}
@@ -237,6 +237,7 @@ export default function NewBatchEntryPage() {
                 />
 
                 <Input
+                  required
                   label="Quantity (kg)"
                   type="number"
                   inputMode="decimal"
@@ -298,7 +299,10 @@ export default function NewBatchEntryPage() {
 
               <button
                 type="button"
-                onClick={() => { if (fileInputRef.current) fileInputRef.current.value = ""; fileInputRef.current?.click(); }}
+                onClick={() => {
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                  fileInputRef.current?.click();
+                }}
                 className="w-full"
               >
                 <div className="flex  flex-col items-center justify-center text-center">
@@ -316,9 +320,7 @@ export default function NewBatchEntryPage() {
                           Inspection Photo Ready
                         </h2>
 
-                        <p className="mt-2 text-sm text-zinc-500">
-                          {fileName}
-                        </p>
+                        <p className="mt-2 text-sm text-zinc-500">{fileName}</p>
 
                         <p className="mt-3 text-sm text-zinc-500">
                           Click anywhere to replace the uploaded photo.
@@ -367,88 +369,6 @@ export default function NewBatchEntryPage() {
                 </p>
               )}
             </section>
-
-            {analysis && (
-              <section className="rounded-[32px] border border-emerald-100 bg-white p-8">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h2 className="text-[24px] font-semibold text-zinc-900">
-                      AI Inspection Snapshot
-                    </h2>
-
-                    <p className="mt-1 text-sm text-zinc-500">
-                      Generated from the uploaded inspection image.
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl bg-emerald-600 px-5 py-4 text-center text-white">
-                    <p className="text-xs font-medium uppercase tracking-wide text-emerald-100">
-                      Quality Score
-                    </p>
-
-                    <p className="mt-1 text-3xl font-semibold">
-                      {analysis.qualityScore}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                      Color Assessment
-                    </p>
-
-                    <p className="mt-2 text-sm leading-6 text-zinc-700">
-                      {analysis.colorAssessment}
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                      Recommendation
-                    </p>
-
-                    <p className="mt-2 text-sm leading-6 text-zinc-700">
-                      {analysis.recommendation}
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                      Observed Defects
-                    </p>
-
-                    <p className="mt-2 text-sm leading-6 text-zinc-700">
-                      {analysis.defects.length > 0
-                        ? analysis.defects.join(", ")
-                        : "No visible defects detected."}
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
-                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-                      Foreign Matter
-                    </p>
-
-                    <p className="mt-2 text-sm leading-6 text-zinc-700">
-                      {analysis.foreignMatter
-                        ? "Potential foreign matter detected."
-                        : "No visible foreign matter detected."}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
-                  <p className="text-xs font-medium uppercase tracking-wide text-emerald-700">
-                    Inspector Notes
-                  </p>
-
-                  <p className="mt-2 text-sm leading-6 text-zinc-700">
-                    {analysis.notes}
-                  </p>
-                </div>
-              </section>
-            )}
           </div>
         </div>
       </div>
