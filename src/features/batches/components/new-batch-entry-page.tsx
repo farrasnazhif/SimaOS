@@ -1,15 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import * as React from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import {
-  BadgeAlert,
-  ChevronRight,
   ImagePlus,
+  Lightbulb,
   PackageSearch,
-  Sparkles,
+  SquareArrowDown,
 } from "lucide-react";
 
 import Button from "@/components/ui/buttons/button";
@@ -39,25 +37,19 @@ const supplierOptions = [
   { label: "Java Harvest Partners", value: "Java Harvest Partners" },
 ];
 
-const uploadHighlights = ["Min 4K inspection photo", "Macro lens recommended"];
-
 async function fileToDataUrl(file: File) {
   return await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
-
     reader.onload = () => {
       if (typeof reader.result === "string") {
         resolve(reader.result);
         return;
       }
-
       reject(new Error("Unable to read the inspection photo."));
     };
-
     reader.onerror = () => {
       reject(new Error("Unable to read the inspection photo."));
     };
-
     reader.readAsDataURL(file);
   });
 }
@@ -136,7 +128,6 @@ export default function NewBatchEntryPage() {
         type: "required",
         message: "An inspection photo is required.",
       });
-
       return;
     }
 
@@ -152,47 +143,31 @@ export default function NewBatchEntryPage() {
   }
 
   return (
-    <main className="px-4 py-8 md:px-6 lg:px-10">
+    <main className="">
       <div className="mx-auto max-w-7xl space-y-6">
-        <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-            <Link href="/dashboard" className="transition hover:text-emerald-700">
-              Batches
-            </Link>
+        <div>
+          <h1 className="text-4xl font-semibold text-zinc-900">
+            New Batch Entry
+          </h1>
 
-            <ChevronRight className="size-3.5 text-zinc-400" />
-
-            <span>Create new intake</span>
-          </div>
-
-          <div className="space-y-2">
-            <h1 className="text-4xl font-semibold tracking-tight text-zinc-900">
-              New Batch Entry
-            </h1>
-
-            <p className="max-w-3xl text-base text-zinc-600 md:text-lg">
-              Precision intake logging for industrial traceability. Capture the
-              inbound material details and send the inspection photo for AI
-              reasoning.
-            </p>
-          </div>
+          <p className="mt-1 text-base text-zinc-700">
+            Fill in the manufacturing parameters below.
+          </p>
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[420px_minmax(0,1fr)]">
           <div className="space-y-6">
-            <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm md:p-7">
+            <section className="rounded-3xl border border-zinc-200 bg-white p-6  md:p-7">
               <div className="mb-6 flex items-center gap-3">
                 <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
                   <PackageSearch className="size-6" />
                 </div>
-
                 <div>
-                  <h2 className="text-2xl font-semibold text-zinc-900">
+                  <h2 className="text-2xl font-semibold text-zinc-900 leading-none">
                     Batch Parameters
                   </h2>
-
                   <p className="text-sm text-zinc-500">
-                    Seed the lot record before AI QC review.
+                    Store the lot record before AI QC review.
                   </p>
                 </div>
               </div>
@@ -201,16 +176,14 @@ export default function NewBatchEntryPage() {
                 className="space-y-5"
                 onSubmit={handleSubmit(async (data) => {
                   const promise = onSubmit(data);
-
                   toast.promise(promise, {
-                    loading: "Running OpenAI inspection reasoning and saving batch...",
-                    success: "Batch saved to Supabase successfully.",
+                    loading: "Running inspection reasoning and saving batch...",
+                    success: "Batch saved to inventory successfully.",
                     error: (error) =>
                       error instanceof Error
                         ? error.message
                         : "Unable to complete inspection reasoning.",
                   });
-
                   await promise;
                 })}
               >
@@ -276,42 +249,20 @@ export default function NewBatchEntryPage() {
                   variant="primary"
                   size="lg"
                   isLoading={isSubmitting || isProcessing}
-                  className="w-full rounded-2xl"
-                  leftIcon={Sparkles}
+                  className="w-full mt-1"
+                  leftIcon={SquareArrowDown}
                 >
                   Initiate Batch Process
                 </Button>
               </form>
-            </section>
-
-            <section className="rounded-3xl border border-emerald-100 bg-white p-6 shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
-                  <BadgeAlert className="size-6" />
-                </div>
-
-                <div className="space-y-2">
-                  <h3 className="text-xl font-semibold text-zinc-900">
-                    Compliance Reminder
-                  </h3>
-
-                  <p className="text-sm leading-6 text-zinc-600">
-                    All material uploads require a clear inspection photo for
-                    AI-assisted validation, audit trails, and downstream batch
-                    passport events.
-                  </p>
-                </div>
-              </div>
             </section>
           </div>
 
           <div className="space-y-6">
             <section
               className={cn(
-                "rounded-3xl border-2 border-dashed bg-white/80 p-6 shadow-sm transition-colors md:p-8",
-                isDragging
-                  ? "border-emerald-400 bg-emerald-50"
-                  : "border-zinc-200",
+                "rounded-[32px] border border-emerald-100 bg-white px-8 py-13 transition-all duration-200",
+                isDragging && "border-emerald-400 bg-emerald-50/30",
               )}
               onDragOver={(event) => {
                 event.preventDefault();
@@ -326,6 +277,7 @@ export default function NewBatchEntryPage() {
                 setIsDragging(false);
 
                 const file = event.dataTransfer.files?.[0];
+
                 if (file) {
                   updateSelectedFile(file);
                 }
@@ -343,63 +295,66 @@ export default function NewBatchEntryPage() {
 
               <button
                 type="button"
-                className="w-full text-left"
                 onClick={() => fileInputRef.current?.click()}
+                className="w-full"
               >
-                <div className="flex min-h-[420px] flex-col items-center justify-center gap-6 rounded-[1.75rem] border border-transparent px-4 text-center">
+                <div className="flex  flex-col items-center justify-center text-center">
                   {previewUrl ? (
                     <>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={previewUrl}
                         alt="Inspection preview"
-                        className="h-64 w-full max-w-2xl rounded-3xl object-cover shadow-sm"
+                        className="h-[320px] w-full rounded-[24px] object-cover"
                       />
 
-                      <div className="space-y-2">
-                        <h2 className="text-2xl font-semibold text-zinc-900">
+                      <div className="mt-8">
+                        <h2 className="text-[28px] font-semibold tracking-tight text-zinc-900">
                           Inspection Photo Ready
                         </h2>
 
-                        <p className="text-sm text-zinc-500">
+                        <p className="mt-2 text-sm text-zinc-500">
                           {selectedPhoto?.name}
                         </p>
 
-                        <p className="text-base text-zinc-600">
-                          Click to replace the image or continue to run AI QC
-                          reasoning and save the intake to Supabase.
+                        <p className="mt-3 text-sm text-zinc-500">
+                          Click anywhere to replace the uploaded photo.
                         </p>
+                      </div>
+
+                      <div className="mt-8 rounded-[10px] bg-[#E9F1ED] px-5 py-3">
+                        <div className="flex items-center gap-2 text-sm font-medium text-[#0E8752]">
+                          <Lightbulb className="size-4" />
+                          Ready for AI quality inspection
+                        </div>
                       </div>
                     </>
                   ) : (
                     <>
-                      <div className="flex size-24 items-center justify-center rounded-3xl border border-zinc-200 bg-zinc-50 text-emerald-700 shadow-sm">
-                        <ImagePlus className="size-11" />
+                      <div className="flex h-36 w-36 items-center justify-center rounded-full border border-[#98DEB9] text-emerald-700 bg-[#EFF5F3]">
+                        <ImagePlus className="size-14" />
                       </div>
 
-                      <div className="space-y-3">
-                        <h2 className="text-3xl font-semibold text-zinc-900">
-                          Upload Inspection Photo
+                      <div className="mt-8">
+                        <h2 className="text-[32px] font-semibold tracking-tight text-zinc-900">
+                          Upload Batch Photo
                         </h2>
 
-                        <p className="mx-auto max-w-2xl text-lg leading-8 text-zinc-600">
-                          Drag and drop raw material photos here, or click to
-                          browse files for AI-assisted QC reasoning.
+                        <p className="mx-auto mt-2 max-w-[420px] text-base  text-zinc-500">
+                          Drag and drop raw material inspection photos here, or
+                          click to browse files. Supported files: JPG, PNG,
+                          TIFF.
                         </p>
+                      </div>
+
+                      <div className="mt-8 rounded-[10px] bg-[#E9F1ED] px-5 py-3">
+                        <div className="flex items-center gap-2 text-sm font-medium text-[#0E8752]">
+                          <Lightbulb className="size-4" />
+                          AI-assisted validation and audit trails
+                        </div>
                       </div>
                     </>
                   )}
-
-                  <div className="flex flex-wrap items-center justify-center gap-3">
-                    {uploadHighlights.map((item) => (
-                      <span
-                        key={item}
-                        className="rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700"
-                      >
-                        {item}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               </button>
 
@@ -411,52 +366,55 @@ export default function NewBatchEntryPage() {
             </section>
 
             {analysis && (
-              <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm md:p-7">
-                <div className="flex items-center justify-between gap-4">
+              <section className="rounded-[32px] border border-emerald-100 bg-white p-8">
+                <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-2xl font-semibold text-zinc-900">
+                    <h2 className="text-[24px] font-semibold text-zinc-900">
                       AI Inspection Snapshot
                     </h2>
 
                     <p className="mt-1 text-sm text-zinc-500">
-                      Generated from the uploaded intake photo via OpenAI
-                      vision reasoning.
+                      Generated from the uploaded inspection image.
                     </p>
                   </div>
 
-                  <div className="rounded-2xl bg-emerald-600 px-4 py-3 text-center text-white shadow-sm">
-                    <div className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-100">
+                  <div className="rounded-2xl bg-emerald-600 px-5 py-4 text-center text-white">
+                    <p className="text-xs font-medium uppercase tracking-wide text-emerald-100">
                       Quality Score
-                    </div>
-                    <div className="text-2xl font-semibold">
+                    </p>
+
+                    <p className="mt-1 text-3xl font-semibold">
                       {analysis.qualityScore}
-                    </div>
+                    </p>
                   </div>
                 </div>
 
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                  <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
+                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
                       Color Assessment
-                    </div>
+                    </p>
+
                     <p className="mt-2 text-sm leading-6 text-zinc-700">
                       {analysis.colorAssessment}
                     </p>
                   </div>
 
-                  <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                  <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
+                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
                       Recommendation
-                    </div>
+                    </p>
+
                     <p className="mt-2 text-sm leading-6 text-zinc-700">
                       {analysis.recommendation}
                     </p>
                   </div>
 
-                  <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                  <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
+                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
                       Observed Defects
-                    </div>
+                    </p>
+
                     <p className="mt-2 text-sm leading-6 text-zinc-700">
                       {analysis.defects.length > 0
                         ? analysis.defects.join(", ")
@@ -464,10 +422,11 @@ export default function NewBatchEntryPage() {
                     </p>
                   </div>
 
-                  <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                  <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
+                    <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
                       Foreign Matter
-                    </div>
+                    </p>
+
                     <p className="mt-2 text-sm leading-6 text-zinc-700">
                       {analysis.foreignMatter
                         ? "Potential foreign matter detected."
@@ -476,10 +435,11 @@ export default function NewBatchEntryPage() {
                   </div>
                 </div>
 
-                <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
+                  <p className="text-xs font-medium uppercase tracking-wide text-emerald-700">
                     Inspector Notes
-                  </div>
+                  </p>
+
                   <p className="mt-2 text-sm leading-6 text-zinc-700">
                     {analysis.notes}
                   </p>
