@@ -48,7 +48,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            className="relative flex w-80 items-center rounded-lg border border-zinc-200 bg-zinc-50 py-2 pl-10 pr-4 text-sm text-zinc-400 transition hover:border-emerald-400 hover:bg-white"
+            className="relative flex w-85 items-center rounded-lg border border-zinc-200 bg-zinc-50 py-2 pl-10 pr-4 text-sm text-zinc-400 transition hover:border-emerald-400 hover:bg-white"
           >
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
             <span>Search Lots, Batches, or Materials...</span>
