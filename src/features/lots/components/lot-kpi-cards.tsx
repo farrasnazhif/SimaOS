@@ -109,9 +109,13 @@ export default function LotKpiCards() {
               </div>
             </div>
             <div className="mt-8 flex items-end justify-between">
-              <h2 className="text-5xl font-bold tracking-tight text-zinc-900">
-                {item.value}
-              </h2>
+              <div>
+                <h2 className="text-5xl font-bold tracking-tight text-zinc-900">
+                  {item.value}
+                </h2>
+                <p className="mt-3 text-xs text-zinc-500">{item.insight}</p>
+              </div>
+
               <Link
                 href={item.href}
                 className="flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-50"
@@ -119,7 +123,6 @@ export default function LotKpiCards() {
                 <ArrowUpRight className="size-5" />
               </Link>
             </div>
-            <p className="mt-3 text-xs text-zinc-500">{item.insight}</p>
           </div>
         );
       })}

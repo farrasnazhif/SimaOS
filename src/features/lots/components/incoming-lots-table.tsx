@@ -105,6 +105,7 @@ export default function IncomingLotsTable() {
       if (dateFilter === "today" && lot.arrival_date !== todayStr) return false;
       if (dateFilter === "week" && lot.arrival_date < weekAgo) return false;
       if (dateFilter === "month" && lot.arrival_date < monthAgo) return false;
+      if (dateFilter !== "all" && dateFilter !== "today" && dateFilter !== "week" && dateFilter !== "month" && lot.arrival_date !== dateFilter) return false;
       if (gradeFilter !== "all") {
         const score = lot.qc_inspections?.[0]?.ai_quality_score;
         if (score == null) return false;
@@ -332,6 +333,14 @@ export default function IncomingLotsTable() {
                       {option.label}
                     </button>
                   ))}
+                  <div className="px-3 py-2">
+                    <input
+                      type="date"
+                      value={!["all", "today", "week", "month"].includes(dateFilter) ? dateFilter : ""}
+                      onChange={(e) => { setDateFilter(e.target.value || "all"); setPage(1); }}
+                      className="w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm text-zinc-700 outline-none focus:border-emerald-500"
+                    />
+                  </div>
 
                   <p className="mt-2 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                     Grade
