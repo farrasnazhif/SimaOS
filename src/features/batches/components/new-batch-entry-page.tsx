@@ -29,6 +29,8 @@ const materialOptions = [
   { label: "Turmeric", value: "Turmeric" },
   { label: "Cinnamon Bark", value: "Cinnamon Bark" },
   { label: "Clove Buds", value: "Clove Buds" },
+  { label: "Black Pepper", value: "Black Pepper" },
+  { label: "Nutmeg", value: "Nutmeg" },
 ];
 
 const supplierOptions = [
