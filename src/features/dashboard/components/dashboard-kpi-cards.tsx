@@ -7,10 +7,10 @@ import {
   Scale,
   XCircle,
 } from "lucide-react";
-import { useLotsQuery } from "../queries/lots-queries";
+import { useLotsQuery } from "../../lots/queries/lots-queries";
 import Link from "next/link";
 
-export default function LotsKpiCards() {
+export default function DashboardKpiCards() {
   const { data: lots } = useLotsQuery();
 
   const pendingQc = lots?.filter((l) => l.status === "in_qc").length ?? 0;

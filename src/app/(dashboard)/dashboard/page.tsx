@@ -4,9 +4,9 @@ import * as React from "react";
 import { Lightbulb, ListFilter } from "lucide-react";
 
 import Button from "@/components/ui/buttons/button";
-import LotsKpiCards from "@/features/lots/components/lots-kpi-cards";
 import AlertsPanel from "@/features/alerts/components/alerts-panel";
 import { useLotsQuery, Lot } from "@/features/lots/queries/lots-queries";
+import DashboardKpiCards from "@/features/dashboard/components/dashboard-kpi-cards";
 
 type StatusFilter = "all" | "approved" | "in_qc" | "rejected";
 type GroupBy = "material" | "supplier";
@@ -85,7 +85,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <LotsKpiCards />
+      <DashboardKpiCards />
 
       <div className="grid grid-cols-12 gap-6">
         <section className="col-span-12 rounded-[32px] border border-emerald-100 bg-white p-8 lg:col-span-8">

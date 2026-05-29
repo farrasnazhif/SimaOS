@@ -2,7 +2,7 @@
 
 import Button from "@/components/ui/buttons/button";
 import IncomingLotsTable from "@/features/lots/components/incoming-lots-table";
-import LotsKpiCards from "@/features/lots/components/lots-kpi-cards";
+import LotKpiCards from "@/features/lots/components/lot-kpi-cards";
 import { ArchiveRestore } from "lucide-react";
 import Link from "next/link";
 
@@ -24,7 +24,7 @@ export default function LotsPage() {
         </Link>
       </div>
 
-      <LotsKpiCards />
+      <LotKpiCards />
 
       <IncomingLotsTable />
     </div>
