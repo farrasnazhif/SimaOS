@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Sidebar from "@/components/ui/sidebar";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar-context";
 import { Search, UserCircle, User, LogOut, ChevronDown } from "lucide-react";
@@ -14,11 +15,24 @@ import {
 } from "./dropdown";
 import { useLogoutMutation } from "@/features/auth/queries/auth-queries";
 import FloatingCopilot from "@/features/copilot/components/floating-copilot";
+import SearchModal from "./search-modal";
 
 function AppShellInner({ children }: { children: React.ReactNode }) {
   const { profile } = useAuth();
   const { open } = useSidebar();
   const logoutMutation = useLogoutMutation();
+  const [searchOpen, setSearchOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#EFF5F3]">
@@ -31,14 +45,17 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
         )}
       >
         <div className="flex items-center gap-6">
-          <div className="relative w-80">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="relative flex w-80 items-center rounded-lg border border-zinc-200 bg-zinc-50 py-2 pl-10 pr-4 text-sm text-zinc-400 transition hover:border-emerald-400 hover:bg-white"
+          >
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
-            <input
-              type="text"
-              placeholder="Search Lots, Batches, or Materials..."
-              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 py-2 pl-10 pr-4 text-sm text-zinc-700 placeholder:text-zinc-400 focus:border-emerald-400 focus:outline-none"
-            />
-          </div>
+            <span>Search Lots, Batches, or Materials...</span>
+            <kbd className="ml-auto rounded-md border border-zinc-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-zinc-400">
+              ⌘ K
+            </kbd>
+          </button>
         </div>
 
         <Dropdown>
@@ -93,6 +110,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
       </main>
 
       <FloatingCopilot />
+      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
     </div>
   );
 }
