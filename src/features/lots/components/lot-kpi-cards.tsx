@@ -3,9 +3,33 @@
 import { AlertCircle, ArrowUpRight, CheckCircle2, XCircle } from "lucide-react";
 import { useLotsQuery } from "../../lots/queries/lots-queries";
 import Link from "next/link";
+import Skeleton from "@/components/ui/skeleton";
 
 export default function LotKpiCards() {
-  const { data: lots } = useLotsQuery();
+  const { data: lots, isLoading } = useLotsQuery();
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-5 md:grid-cols-3">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="rounded-[16px] border border-emerald-100 bg-white p-5 shadow-sm">
+            <div className="flex items-start gap-4">
+              <Skeleton className="h-12 w-12 rounded-2xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+            </div>
+            <div className="mt-8 flex items-end justify-between">
+              <Skeleton className="h-12 w-20" />
+              <Skeleton className="h-12 w-12 rounded-2xl" />
+            </div>
+            <Skeleton className="mt-3 h-3 w-40" />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   const totalLots = lots?.length ?? 0;
   const pendingQc = lots?.filter((l) => l.status === "in_qc").length ?? 0;

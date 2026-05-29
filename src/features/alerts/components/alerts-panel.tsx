@@ -2,6 +2,7 @@
 
 import { useAlertsQuery, useResolveAlertMutation } from "../queries/alerts-queries";
 import { toast } from "sonner";
+import Skeleton from "@/components/ui/skeleton";
 
 const severityColors: Record<string, string> = {
   high: "border-l-red-500 bg-red-50",
@@ -13,7 +14,20 @@ export default function AlertsPanel() {
   const { data: alerts, isLoading } = useAlertsQuery();
   const resolve = useResolveAlertMutation();
 
-  if (isLoading) return <p className="text-sm text-zinc-400">Loading alerts...</p>;
+  if (isLoading) return (
+    <div className="space-y-3">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="rounded-lg border border-zinc-200 p-4">
+          <div className="flex justify-between">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-12" />
+          </div>
+          <Skeleton className="mt-3 h-4 w-48" />
+          <Skeleton className="mt-2 h-3 w-full" />
+        </div>
+      ))}
+    </div>
+  );
   if (!alerts || alerts.length === 0) return <p className="text-sm text-zinc-500">No active alerts.</p>;
 
   return (

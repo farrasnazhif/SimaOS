@@ -9,9 +9,31 @@ import {
 } from "lucide-react";
 import { useLotsQuery } from "../../lots/queries/lots-queries";
 import Link from "next/link";
+import Skeleton from "@/components/ui/skeleton";
 
 export default function DashboardKpiCards() {
-  const { data: lots } = useLotsQuery();
+  const { data: lots, isLoading } = useLotsQuery();
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="rounded-[16px] border border-emerald-100 bg-white p-5 shadow-sm">
+            <div className="flex items-start gap-4">
+              <Skeleton className="h-12 w-12 rounded-2xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-3 w-28" />
+              </div>
+            </div>
+            <div className="mt-8">
+              <Skeleton className="h-10 w-16" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   const pendingQc = lots?.filter((l) => l.status === "in_qc").length ?? 0;
   const approved = lots?.filter((l) => l.status === "approved").length ?? 0;

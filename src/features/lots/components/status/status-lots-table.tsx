@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowUpDown, ArrowUpRight, ChevronLeft, ChevronRight, ListFilter } from "lucide-react";
 import Button from "@/components/ui/buttons/button";
+import Skeleton from "@/components/ui/skeleton";
 import { LotRow, StatusConfig } from "./types";
 
 const PAGE_SIZE = 5;
@@ -131,7 +132,16 @@ export default function StatusLotsTable({ lots, isLoading, config }: Props) {
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-sm text-zinc-400">Loading...</td></tr>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-zinc-50"}>
+                    <td className="px-4 py-5"><Skeleton className="h-4 w-24" /></td>
+                    <td className="px-4 py-5"><Skeleton className="h-4 w-28" /></td>
+                    <td className="px-4 py-5"><Skeleton className="h-4 w-16" /></td>
+                    <td className="px-4 py-5"><Skeleton className="h-4 w-20" /></td>
+                    <td className="px-4 py-5"><Skeleton className="h-6 w-20 rounded-xl" /></td>
+                    <td className="px-4 py-5"><Skeleton className="h-4 w-14" /></td>
+                  </tr>
+                ))
               ) : filteredLots.length === 0 ? (
                 <tr><td colSpan={6} className="px-4 py-8 text-center text-sm text-zinc-400">No lots found.</td></tr>
               ) : (

@@ -1,26 +1,28 @@
 "use client";
 
-import { useAuth } from "@/features/auth/hooks/use-auth";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+
 import AppShell from "@/components/ui/app-shell";
+import { useAuth } from "@/features/auth/hooks/use-auth";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-sm text-zinc-400">Loading...</p>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [isAuthenticated, router]);
 
-  if (!isAuthenticated) router.push("/login");
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return <AppShell>{children}</AppShell>;
 }

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumb from "@/components/ui/breadcrumb";
+import Skeleton from "@/components/ui/skeleton";
 import Button from "@/components/ui/buttons/button";
 
 function StatusBadge({ status }: { status: string }) {
@@ -189,8 +190,18 @@ export default function LotDetailPage({ lotId }: { lotId: string }) {
 
   if (isLoading) {
     return (
-      <div className="flex h-64 items-center justify-center text-zinc-400">
-        Loading...
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+          <div className="space-y-4">
+            <Skeleton className="h-48 w-full rounded-2xl" />
+            <Skeleton className="h-32 w-full rounded-2xl" />
+          </div>
+          <div className="space-y-4">
+            <Skeleton className="h-64 w-full rounded-2xl" />
+            <Skeleton className="h-40 w-full rounded-2xl" />
+          </div>
+        </div>
       </div>
     );
   }

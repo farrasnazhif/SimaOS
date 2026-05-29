@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import Button from "@/components/ui/buttons/button";
+import Skeleton from "@/components/ui/skeleton";
 
 import { useLotsQuery } from "../queries/lots-queries";
 
@@ -154,9 +155,32 @@ export default function IncomingLotsTable() {
 
   if (isLoading) {
     return (
-      <div className="rounded-[30px] border border-emerald-100 bg-white p-12 text-center">
-        <p className="text-sm text-zinc-500">Loading lots...</p>
-      </div>
+      <section className="overflow-hidden rounded-[32px] border border-emerald-100 bg-white">
+        <div className="flex items-center justify-between px-8 py-7">
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-7 w-16" />
+            <Skeleton className="h-6 w-24 rounded-full" />
+          </div>
+          <div className="flex gap-3">
+            <Skeleton className="h-8 w-20 rounded-lg" />
+            <Skeleton className="h-8 w-20 rounded-lg" />
+          </div>
+        </div>
+        <div className="px-6 pb-6">
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 rounded-xl bg-zinc-50 px-4 py-4">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-6 w-20 rounded-xl" />
+                <Skeleton className="ml-auto h-4 w-14" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     );
   }
 
