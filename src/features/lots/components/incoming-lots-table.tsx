@@ -188,7 +188,7 @@ export default function IncomingLotsTable() {
     const a = document.createElement("a");
 
     a.href = url;
-    a.download = "lots-export.csv";
+    a.download = "simaos-lots-export.csv";
 
     a.click();
 
