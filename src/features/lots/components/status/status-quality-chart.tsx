@@ -23,9 +23,9 @@ export default function StatusQualityChart({ lots }: Props) {
       const score = lot.qc_inspections?.[0]?.ai_quality_score;
       if (score == null) continue;
       if (chartGradeFilter === "high" && score < 80) continue;
-      if (chartGradeFilter === "medium" && (score < 60 || score >= 80))
+      if (chartGradeFilter === "medium" && (score < 50 || score >= 80))
         continue;
-      if (chartGradeFilter === "low" && score >= 60) continue;
+      if (chartGradeFilter === "low" && score >= 50) continue;
       const key =
         chartGroupBy === "material"
           ? lot.material_name
@@ -57,7 +57,7 @@ export default function StatusQualityChart({ lots }: Props) {
   //     : null;
 
   return (
-    <section className="col-span-12 overflow-hidden rounded-[32px] border border-emerald-100 bg-white lg:col-span-8">
+    <section className="col-span-12 overflow-hidden rounded-[32px] border border-emerald-100 bg-white lg:col-span-8 shadow-sm">
       <div className="flex items-center justify-between px-8 py-7">
         <h2 className="text-[24px] font-semibold leading-none text-zinc-900">
           Quality Scores{" "}
@@ -98,8 +98,8 @@ export default function StatusQualityChart({ lots }: Props) {
                 {[
                   { label: "All Grades", value: "all" },
                   { label: "High (80+)", value: "high" },
-                  { label: "Medium (60–79)", value: "medium" },
-                  { label: "Low (<60)", value: "low" },
+                  { label: "Medium (50–79)", value: "medium" },
+                  { label: "Low (<50)", value: "low" },
                 ].map((o) => (
                   <button
                     key={o.value}
@@ -139,7 +139,7 @@ export default function StatusQualityChart({ lots }: Props) {
                     <div className="relative flex w-full flex-1 items-end">
                       <div
                         className={`relative w-full min-h-[8px] rounded-t-2xl transition-all group-hover:opacity-80 ${
-                          item.avgScore < 60
+                          item.avgScore < 50
                             ? "bg-red-500"
                             : item.avgScore < 75
                               ? "bg-amber-500"
