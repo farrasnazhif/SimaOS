@@ -47,3 +47,37 @@ export function useResolveAlertMutation() {
     },
   });
 }
+
+export function useArchivedAlertsQuery() {
+  return useQuery({
+    queryKey: ["alerts", "archived"],
+    queryFn: async () => {
+      const supabase = getSupabaseBrowserClient();
+      const { data, error } = await (supabase
+        .from("alerts") as any)
+        .select("*")
+        .eq("resolved", true)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as Alert[];
+    },
+  });
+}
+
+export function useRestoreAlertMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (alertId: string) => {
+      const supabase = getSupabaseBrowserClient();
+      const { error } = await (supabase
+        .from("alerts") as any)
+        .update({ resolved: false })
+        .eq("id", alertId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["alerts", "active"] });
+      queryClient.invalidateQueries({ queryKey: ["alerts", "archived"] });
+    },
+  });
+}
