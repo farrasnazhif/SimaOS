@@ -77,9 +77,9 @@ export default function StatusLotsTable({ lots, isLoading, config }: Props) {
         const score = lot.qc_inspections?.[0]?.ai_quality_score;
         if (score == null) return false;
         if (gradeFilter === "high" && score < 80) return false;
-        if (gradeFilter === "medium" && (score < 60 || score >= 80))
+        if (gradeFilter === "medium" && (score < 50 || score >= 80))
           return false;
-        if (gradeFilter === "low" && score >= 60) return false;
+        if (gradeFilter === "low" && score >= 50) return false;
       }
       if (gradeMin || gradeMax) {
         const score = lot.qc_inspections?.[0]?.ai_quality_score;
@@ -226,8 +226,8 @@ export default function StatusLotsTable({ lots, isLoading, config }: Props) {
                 {[
                   { label: "All Grades", value: "all" },
                   { label: "High (80+)", value: "high" },
-                  { label: "Medium (60–79)", value: "medium" },
-                  { label: "Low (<60)", value: "low" },
+                  { label: "Medium (50–79)", value: "medium" },
+                  { label: "Low (<50)", value: "low" },
                 ].map((o) => (
                   <button
                     key={o.value}
