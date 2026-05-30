@@ -30,12 +30,26 @@ const severityConfig: Record<
     label: string;
   }
 > = {
+  critical: {
+    icon: AlertTriangle,
+    color: "text-red-500",
+    bg: "bg-[#FFEDEC]",
+    border: "border-red-100",
+    label: "Critical Risk",
+  },
   high: {
     icon: AlertTriangle,
     color: "text-red-500",
     bg: "bg-[#FFEDEC]",
     border: "border-red-100",
     label: "Critical Risk",
+  },
+  warning: {
+    icon: CircleDotDashed,
+    color: "text-amber-500",
+    bg: "bg-[#FFF0DF]",
+    border: "border-amber-100",
+    label: "Maintenance",
   },
   medium: {
     icon: CircleDotDashed,

@@ -70,6 +70,7 @@ export default function NewBatchEntryPage() {
     setValue,
     setError,
     clearErrors,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<BatchIntakeFormValues>({
     defaultValues: {
@@ -125,13 +126,21 @@ export default function NewBatchEntryPage() {
       Number(value) > 0 || "Quantity must be greater than 0 kg.",
   });
 
+  function resetImageInput() {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
+    setFileName(null);
+    setValue("inspectionPhoto", null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
   async function onSubmit(data: BatchIntakeFormValues) {
     if (!data.inspectionPhoto) {
       setError("inspectionPhoto", {
         type: "required",
         message: "An inspection photo is required.",
       });
-      return;
+      throw new Error("An inspection photo is required.");
     }
 
     const imageDataUrl = await fileToDataUrl(data.inspectionPhoto);
@@ -141,6 +150,9 @@ export default function NewBatchEntryPage() {
       quantityKg: Number(data.quantityKg),
       imageDataUrl,
     });
+
+    resetImageInput();
+    reset();
   }
 
   return (
@@ -175,6 +187,7 @@ export default function NewBatchEntryPage() {
 
               <form
                 className="space-y-5"
+                // eslint-disable-next-line react-hooks/refs
                 onSubmit={handleSubmit(async (data) => {
                   const promise = onSubmit(data);
                   toast.promise(promise, {

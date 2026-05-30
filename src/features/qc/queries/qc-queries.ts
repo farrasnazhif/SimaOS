@@ -167,6 +167,31 @@ export function useCreateBatchWithQcMutation() {
         throw createBatchEventError;
       }
 
+      // Generate alerts based on QC results
+      const alertsTable = supabase.from("alerts") as unknown as SupabaseTableClient;
+
+      if (analysis.qualityScore < 70) {
+        await alertsTable.insert({
+          lot_id: createdLot.id,
+          alert_type: "high_rejection_risk",
+          severity: analysis.qualityScore < 50 ? "critical" : "warning",
+          title: "High Rejection Risk",
+          description: `${createdLot.lot_number} (${input.materialType}) scored ${analysis.qualityScore}/100 — ${analysis.recommendation}`,
+          resolved: false,
+        });
+      }
+
+      if (analysis.foreignMatter) {
+        await alertsTable.insert({
+          lot_id: createdLot.id,
+          alert_type: "foreign_matter_detected",
+          severity: "critical",
+          title: "Foreign Matter Detected",
+          description: `Foreign matter found in ${createdLot.lot_number} (${input.materialType}) from ${input.supplier}.`,
+          resolved: false,
+        });
+      }
+
       // Upload inspection image to storage and save to lot_images
       const blob = await fetch(input.imageDataUrl).then((r) => r.blob());
       const ext = blob.type.split("/")[1] || "jpg";
