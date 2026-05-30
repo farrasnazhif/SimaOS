@@ -3,11 +3,11 @@
 import { useState } from "react";
 import {
   AlertTriangle,
-  Wrench,
   Lightbulb,
   RotateCcw,
   Archive,
   X,
+  CircleDotDashed,
 } from "lucide-react";
 import {
   useAlertsQuery,
@@ -38,7 +38,7 @@ const severityConfig: Record<
     label: "Critical Risk",
   },
   medium: {
-    icon: Wrench,
+    icon: CircleDotDashed,
     color: "text-amber-500",
     bg: "bg-[#FFF0DF]",
     border: "border-amber-100",
