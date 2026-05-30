@@ -66,7 +66,7 @@ function TimelineSection({
   const visible = expanded ? events : events.slice(0, 7);
 
   return (
-    <section className="rounded-[28px] border-2 border-[#0E8752]/20 bg-white p-8">
+    <section className="rounded-[28px] border-1 border-[#0E8752]/20 bg-white p-8">
       <h2 className="text-[20px] font-semibold text-zinc-900">Story</h2>
 
       <div className="mt-8 space-y-10">
@@ -334,7 +334,7 @@ export default function LotDetailPage({ lotId }: { lotId: string }) {
         {/* Left section */}
         <div className="col-span-12 space-y-6 lg:col-span-8">
           {/* Lot Specification */}
-          <section className="rounded-[28px] border-2 border-[#0E8752]/20 bg-white p-8">
+          <section className="rounded-[28px] border-1 border-[#0E8752]/20 bg-white p-8">
             <h2 className="text-[20px] font-semibold text-zinc-900">
               Lot Specification
             </h2>
@@ -388,7 +388,7 @@ export default function LotDetailPage({ lotId }: { lotId: string }) {
 
           {/* QC Score */}
           {inspection && (
-            <section className="rounded-[28px] border-2 border-[#0E8752]/20 bg-white p-8">
+            <section className="rounded-[28px] border-1 border-[#0E8752]/20 bg-white p-8">
               <h2 className="text-[20px] font-semibold text-zinc-900">
                 QC Score
               </h2>
@@ -473,7 +473,7 @@ export default function LotDetailPage({ lotId }: { lotId: string }) {
 
               {/* AI Vision Image Card */}
               {
-                <div className="mt-8 overflow-hidden rounded-[24px] border-2 border-[#0E8752]/20 bg-gray-50">
+                <div className="mt-8 overflow-hidden rounded-[24px] border-1 border-[#0E8752]/20 bg-gray-50">
                   {/* Top bar */}
                   <div className="flex items-center justify-between  border-zinc-100 px-5 py-4 ">
                     <div className="flex items-center gap-3">
@@ -486,7 +486,7 @@ export default function LotDetailPage({ lotId }: { lotId: string }) {
                   </div>
 
                   {/* Image with bounding boxes */}
-                  <div className="overflow-hidden rounded-[28px] border-t-2 border-[#0E8752]/20  bg-white">
+                  <div className="overflow-hidden rounded-[28px] border-t-1 border-[#0E8752]/20  bg-white">
                     {/* image wrapper */}
                     <div className="p-3">
                       <div className="relative overflow-hidden rounded-[24px] border border-[#0E8752]">

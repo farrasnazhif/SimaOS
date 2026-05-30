@@ -39,12 +39,12 @@ const navSections = [
     title: "SYSTEM",
     items: [
       {
-        href: "/settings",
+        href: "#",
         label: "Settings",
         icon: Settings,
       },
       {
-        href: "/support",
+        href: "#",
         label: "Support",
         icon: HelpCircle,
       },

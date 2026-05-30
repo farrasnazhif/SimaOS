@@ -120,7 +120,7 @@ export default function StatusLotsTable({ lots, isLoading, config }: Props) {
   );
 
   return (
-    <section className="flex min-h-[600px] flex-col overflow-hidden rounded-[32px] border-2 border-[#0E8752]/20 bg-white ">
+    <section className="flex min-h-[600px] flex-col overflow-hidden rounded-[32px] border-1 border-[#0E8752]/20 bg-white ">
       <div className="flex flex-col gap-5 px-8 py-7 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-4">
           <h2 className="text-[24px] font-semibold leading-none text-zinc-900">
@@ -328,7 +328,7 @@ export default function StatusLotsTable({ lots, isLoading, config }: Props) {
       </div>
 
       <div className="flex-1 px-6 pb-6">
-        <div className="overflow-hidden rounded-[18px] border-2 border-[#0E8752]/20">
+        <div className="overflow-hidden rounded-[18px] border-1 border-[#0E8752]/20">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-zinc-100">

@@ -14,7 +14,7 @@ export default function LotKpiCards() {
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="rounded-[16px] border-2 border-[#0E8752]/20 bg-white p-5 "
+            className="rounded-[16px] border-1 border-[#0E8752]/20 bg-white p-5 "
           >
             <div className="flex items-start gap-4">
               <Skeleton className="h-12 w-12 rounded-2xl" />
@@ -118,7 +118,7 @@ export default function LotKpiCards() {
         return (
           <div
             key={item.title}
-            className="rounded-[16px] border-2 border-[#0E8752]/20 bg-white p-5 "
+            className="rounded-[16px] border-1 border-[#0E8752]/20 bg-white p-5 "
           >
             <div className="flex items-start gap-4">
               <div

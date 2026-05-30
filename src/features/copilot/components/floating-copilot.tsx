@@ -192,7 +192,7 @@ export default function FloatingCopilot() {
 
               {/* input */}
               <div className="bg-[#F4F7F6] px-5 py-4">
-                <div className="rounded-[24px] border-2 border-[#E2E2E2] bg-white p-4">
+                <div className="rounded-[24px] border-1 border-[#E2E2E2] bg-white p-4">
                   <textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}

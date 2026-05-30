@@ -197,7 +197,7 @@ export default function IncomingLotsTable() {
 
   if (isLoading) {
     return (
-      <section className="overflow-hidden rounded-[32px] border-2 border-[#0E8752]/20 bg-white">
+      <section className="overflow-hidden rounded-[32px] border-1 border-[#0E8752]/20 bg-white">
         <div className="flex items-center justify-between px-8 py-7">
           <div className="flex items-center gap-4">
             <Skeleton className="h-7 w-16" />
@@ -246,7 +246,7 @@ export default function IncomingLotsTable() {
   }
 
   return (
-    <section className="flex min-h-[700px] flex-col overflow-hidden rounded-[32px] border-2 border-[#0E8752]/20 bg-white ">
+    <section className="flex min-h-[700px] flex-col overflow-hidden rounded-[32px] border-1 border-[#0E8752]/20 bg-white ">
       {/* top */}
       <div className="flex flex-col gap-5 px-8 py-7 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-4">
@@ -538,7 +538,7 @@ export default function IncomingLotsTable() {
 
       {/* table */}
       <div className="flex-1 px-6 pb-6">
-        <div className="overflow-hidden rounded-[16px] border-2 border-[#0E8752]/20">
+        <div className="overflow-hidden rounded-[16px] border-1 border-[#0E8752]/20">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-zinc-100">
