@@ -558,6 +558,13 @@ export default function IncomingLotsTable() {
 
                 <th className="px-4 py-5 text-left text-sm font-semibold text-zinc-900">
                   <div className="flex items-center gap-2">
+                    Supplier
+                    <ArrowUpDown className="size-4 text-zinc-300" />
+                  </div>
+                </th>
+
+                <th className="px-4 py-5 text-left text-sm font-semibold text-zinc-900">
+                  <div className="flex items-center gap-2">
                     Grade
                     <ArrowUpDown className="size-4 text-zinc-300" />
                   </div>
@@ -607,6 +614,10 @@ export default function IncomingLotsTable() {
 
                   <td className="px-4 py-5 text-sm font-medium text-zinc-700">
                     {lot.material_name}
+                  </td>
+
+                  <td className="px-4 py-5 text-sm font-medium text-zinc-700">
+                    {lot.supplier?.name ?? "-"}
                   </td>
 
                   <td className="px-4 py-5 text-sm font-semibold text-zinc-700">

@@ -335,6 +335,7 @@ export default function StatusLotsTable({ lots, isLoading, config }: Props) {
                 {[
                   "Lot ID",
                   "Material",
+                  "Supplier",
                   "Grade",
                   "Weight",
                   "Arrival Date",
@@ -386,7 +387,7 @@ export default function StatusLotsTable({ lots, isLoading, config }: Props) {
               ) : filteredLots.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="px-4 py-8 text-center text-sm text-zinc-400"
                   >
                     No lots found.
@@ -403,6 +404,9 @@ export default function StatusLotsTable({ lots, isLoading, config }: Props) {
                     </td>
                     <td className="px-4 py-5 text-sm font-medium text-zinc-700">
                       {lot.material_name}
+                    </td>
+                    <td className="px-4 py-5 text-sm font-medium text-zinc-700">
+                      {lot.supplier?.name ?? "-"}
                     </td>
                     <td className="px-4 py-5 text-sm font-medium text-zinc-700">
                       {lot.qc_inspections[0]?.ai_quality_score != null
