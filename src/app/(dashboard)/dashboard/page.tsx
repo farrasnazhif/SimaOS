@@ -14,7 +14,7 @@ type GroupBy = "material" | "supplier";
 const filterOptions: {
   label: string;
   value: string;
-  group: "status" | "groupBy";
+  group: "status" | "groupBy" | "grade";
 }[] = [
   { label: "All Statuses", value: "all", group: "status" },
   { label: "Approved", value: "approved", group: "status" },
@@ -22,9 +22,17 @@ const filterOptions: {
   { label: "Rejected", value: "rejected", group: "status" },
   { label: "By Material", value: "material", group: "groupBy" },
   { label: "By Supplier", value: "supplier", group: "groupBy" },
+  { label: "All Grades", value: "all", group: "grade" },
+  { label: "High (80+)", value: "high", group: "grade" },
+  { label: "Medium (50–79)", value: "medium", group: "grade" },
+  { label: "Low (<50)", value: "low", group: "grade" },
 ];
 
-function useChartData(filter: StatusFilter, groupBy: GroupBy) {
+function useChartData(
+  filter: StatusFilter,
+  groupBy: GroupBy,
+  gradeFilter: string,
+) {
   const { data: lots } = useLotsQuery();
 
   if (!lots) return [];
@@ -36,6 +44,9 @@ function useChartData(filter: StatusFilter, groupBy: GroupBy) {
   for (const lot of filtered) {
     const score = lot.qc_inspections?.[0]?.ai_quality_score;
     if (score == null) continue;
+    if (gradeFilter === "high" && score < 80) continue;
+    if (gradeFilter === "medium" && (score < 50 || score >= 80)) continue;
+    if (gradeFilter === "low" && score >= 50) continue;
 
     const key =
       groupBy === "material"
@@ -63,8 +74,9 @@ function useChartData(filter: StatusFilter, groupBy: GroupBy) {
 export default function DashboardPage() {
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("all");
   const [groupBy, setGroupBy] = React.useState<GroupBy>("material");
+  const [gradeFilter, setGradeFilter] = React.useState("all");
   const [filterOpen, setFilterOpen] = React.useState(false);
-  const chartData = useChartData(statusFilter, groupBy);
+  const chartData = useChartData(statusFilter, groupBy, gradeFilter);
 
   const lowest =
     chartData.length > 1
@@ -149,6 +161,31 @@ export default function DashboardPage() {
                             type="button"
                             onClick={() => {
                               setGroupBy(option.value as GroupBy);
+                              setFilterOpen(false);
+                            }}
+                            className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${
+                              isActive
+                                ? "bg-emerald-50 font-semibold text-emerald-700"
+                                : "text-zinc-600 hover:bg-zinc-50"
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    <p className="mt-2 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                      Grade
+                    </p>
+                    {filterOptions
+                      .filter((o) => o.group === "grade")
+                      .map((option) => {
+                        const isActive = gradeFilter === option.value;
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => {
+                              setGradeFilter(option.value);
                               setFilterOpen(false);
                             }}
                             className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${
