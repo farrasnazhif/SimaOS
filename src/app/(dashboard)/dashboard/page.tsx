@@ -265,7 +265,7 @@ export default function DashboardPage() {
 
           {lowest && highest && highest.label !== lowest.label && (
             <div className="mt-8 rounded-lg border border-zinc-200 bg-white p-8">
-              <div className="inline-flex items-center gap-3 rounded-lg bg-[#E9F1ED]  p-2">
+              <div className="inline-flex items-center gap-2 rounded-lg bg-[#E9F1ED] py-2 px-3">
                 <Lightbulb className="size-4 text-emerald-600" />
 
                 <span className="text-md font-semibold text-emerald-700">
