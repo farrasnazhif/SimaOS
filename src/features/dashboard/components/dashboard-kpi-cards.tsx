@@ -75,7 +75,7 @@ export default function DashboardKpiCards() {
     },
     {
       title: "Total Weight",
-      value: `${(totalWeight / 1000).toFixed(1)} kg`,
+      value: `${totalWeight} kg`,
       change: `From ${totalLots} lots`,
       icon: Scale,
       iconBg: "bg-zinc-100",
