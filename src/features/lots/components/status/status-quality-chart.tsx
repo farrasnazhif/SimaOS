@@ -57,7 +57,7 @@ export default function StatusQualityChart({ lots }: Props) {
   //     : null;
 
   return (
-    <section className="col-span-12 overflow-hidden rounded-[32px] border border-emerald-100 bg-white lg:col-span-8 shadow-sm">
+    <section className="col-span-12 overflow-hidden rounded-[32px] border-2 border-[#0E8752]/20 bg-white lg:col-span-8 ">
       <div className="flex items-center justify-between px-8 py-7">
         <h2 className="text-[24px] font-semibold leading-none text-zinc-900">
           Quality Scores{" "}
@@ -117,7 +117,7 @@ export default function StatusQualityChart({ lots }: Props) {
       </div>
 
       <div className="px-6 pb-6">
-        <div className="rounded-[18px] border border-emerald-100 bg-zinc-50 p-6">
+        <div className="rounded-[18px] border-2 border-[#0E8752]/20 bg-zinc-50 p-6">
           {chartData.length === 0 ? (
             <div className="flex h-[280px] items-center justify-center text-zinc-400">
               No data available.

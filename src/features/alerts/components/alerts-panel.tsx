@@ -96,7 +96,7 @@ export default function AlertsPanel() {
       {!alerts || alerts.length === 0 ? (
         <p className="text-sm text-zinc-500">No active alerts.</p>
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-5 ">
           {alerts.map((alert) => {
             const config = severityConfig[alert.severity] ?? severityConfig.low;
             const Icon = config.icon;
@@ -144,7 +144,6 @@ export default function AlertsPanel() {
 
       <Button
         onClick={() => setShowArchive(true)}
-        variant="secondary"
         className="mt-6 w-full"
         leftIcon={Archive}
       >

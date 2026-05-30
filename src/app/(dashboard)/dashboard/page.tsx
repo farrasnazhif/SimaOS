@@ -88,7 +88,7 @@ export default function DashboardPage() {
       <DashboardKpiCards />
 
       <div className="grid grid-cols-12 gap-6">
-        <section className="col-span-12 rounded-[32px] border border-emerald-100 shadow-sm bg-white p-8 lg:col-span-8">
+        <section className="col-span-12 rounded-[32px] border-2 border-[#0E8752]/20  bg-white p-8 lg:col-span-8">
           <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
             <div>
               <h2 className="text-[24px] font-semibold text-zinc-900">
@@ -254,7 +254,7 @@ export default function DashboardPage() {
         </section>
 
         {/* alerts */}
-        <section className="col-span-12 rounded-[32px] border border-emerald-100 bg-white p-8 lg:col-span-4 shadow-sm">
+        <section className="col-span-12 rounded-[32px] border-2 border-[#0E8752]/20 bg-white p-8 lg:col-span-4 ">
           <div className="flex items-center justify-between">
             <h2 className="text-[24px] font-semibold text-zinc-900">
               Operational Alerts

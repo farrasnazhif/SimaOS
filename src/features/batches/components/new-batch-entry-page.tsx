@@ -158,7 +158,7 @@ export default function NewBatchEntryPage() {
 
         <div className="grid gap-6 xl:grid-cols-[420px_minmax(0,1fr)]">
           <div className="space-y-6">
-            <section className="rounded-3xl border border-zinc-200 bg-white p-6  md:p-7">
+            <section className="rounded-3xl border border-zinc-200 bg-white p-6  md:p-7 ">
               <div className="mb-6 flex items-center gap-3">
                 <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
                   <PackageSearch className="size-6" />
@@ -265,7 +265,7 @@ export default function NewBatchEntryPage() {
           <div className="space-y-6">
             <section
               className={cn(
-                "rounded-[32px] border border-emerald-100 bg-white px-8 py-13 transition-all duration-200",
+                "rounded-[32px] border-2 border-[#0E8752]/20 bg-white px-8 py-13 transition-all duration-200 ",
                 isDragging && "border-emerald-400 bg-emerald-50/30",
               )}
               onDragOver={(event) => {

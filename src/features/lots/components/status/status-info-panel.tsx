@@ -77,7 +77,7 @@ export default function StatusInfoPanel({ lots }: Props) {
   }, [lots]);
 
   return (
-    <section className="col-span-12 overflow-hidden rounded-[32px] border border-emerald-100 bg-white lg:col-span-4 shadow-sm">
+    <section className="col-span-12 overflow-hidden rounded-[32px] border-2 border-[#0E8752]/20 bg-white lg:col-span-4 ">
       <div className="px-8 py-7">
         <h2 className="text-[24px] font-semibold leading-none text-zinc-900">
           Information

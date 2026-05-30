@@ -20,7 +20,7 @@ export default function DashboardKpiCards() {
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
-            className="rounded-[16px] border border-emerald-100 bg-white p-5 shadow-sm"
+            className="rounded-[16px] border-2 border-[#0E8752]/20 bg-white p-5 "
           >
             <div className="flex items-start gap-4">
               <Skeleton className="h-12 w-12 rounded-2xl" />
@@ -95,7 +95,7 @@ export default function DashboardKpiCards() {
         return (
           <div
             key={item.title}
-            className="rounded-[16px] border border-emerald-100 bg-white p-5 shadow-sm"
+            className="rounded-[16px] border-2 border-[#0E8752]/20 bg-white p-5 "
           >
             <div className="flex items-start gap-4">
               <div
