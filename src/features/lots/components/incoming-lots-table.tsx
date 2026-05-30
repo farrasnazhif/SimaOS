@@ -71,6 +71,11 @@ export default function IncomingLotsTable() {
   const [supplierFilter, setSupplierFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
   const [gradeFilter, setGradeFilter] = useState("all");
+  const [gradeMin, setGradeMin] = useState("");
+  const [gradeMax, setGradeMax] = useState("");
+  const [weightFilter, setWeightFilter] = useState("all");
+  const [weightMin, setWeightMin] = useState("");
+  const [weightMax, setWeightMax] = useState("");
   const [page, setPage] = useState(1);
   const [filterOpen, setFilterOpen] = useState(false);
 
@@ -114,9 +119,26 @@ export default function IncomingLotsTable() {
         if (gradeFilter === "medium" && (score < 60 || score >= 80)) return false;
         if (gradeFilter === "low" && score >= 60) return false;
       }
+      if (gradeMin || gradeMax) {
+        const score = lot.qc_inspections?.[0]?.ai_quality_score;
+        if (score == null) return false;
+        if (gradeMin && score < Number(gradeMin)) return false;
+        if (gradeMax && score > Number(gradeMax)) return false;
+      }
+      if (weightFilter !== "all") {
+        const w = Number(lot.quantity_kg);
+        if (weightFilter === "light" && w >= 100) return false;
+        if (weightFilter === "medium" && (w < 100 || w >= 200)) return false;
+        if (weightFilter === "heavy" && w < 200) return false;
+      }
+      if (weightMin || weightMax) {
+        const w = Number(lot.quantity_kg);
+        if (weightMin && w < Number(weightMin)) return false;
+        if (weightMax && w > Number(weightMax)) return false;
+      }
       return true;
     });
-  }, [lots, statusFilter, materialFilter, supplierFilter, dateFilter, gradeFilter]);
+  }, [lots, statusFilter, materialFilter, supplierFilter, dateFilter, gradeFilter, gradeMin, gradeMax, weightFilter, weightMin, weightMax]);
 
   const totalPages = Math.max(1, Math.ceil(filteredLots.length / PAGE_SIZE));
 
@@ -378,9 +400,9 @@ export default function IncomingLotsTable() {
                     <button
                       key={option.value}
                       type="button"
-                      onClick={() => { setGradeFilter(option.value); setPage(1); }}
+                      onClick={() => { setGradeFilter(option.value); setGradeMin(""); setGradeMax(""); setPage(1); }}
                       className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${
-                        gradeFilter === option.value
+                        gradeFilter === option.value && !gradeMin && !gradeMax
                           ? "bg-emerald-50 font-semibold text-emerald-700"
                           : "text-zinc-600 hover:bg-zinc-50"
                       }`}
@@ -388,6 +410,49 @@ export default function IncomingLotsTable() {
                       {option.label}
                     </button>
                   ))}
+                  <div className="flex gap-2 px-3 py-2">
+                    <input type="number" placeholder="Min" min="0" max="100" value={gradeMin}
+                      onChange={(e) => { setGradeMin(e.target.value); setGradeFilter("all"); setPage(1); }}
+                      className="w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm text-zinc-700 outline-none focus:border-emerald-500"
+                    />
+                    <input type="number" placeholder="Max" min="0" max="100" value={gradeMax}
+                      onChange={(e) => { setGradeMax(e.target.value); setGradeFilter("all"); setPage(1); }}
+                      className="w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm text-zinc-700 outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <p className="mt-2 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    Weight
+                  </p>
+                  {[
+                    { label: "All Weights", value: "all" },
+                    { label: "Light (<100 kg)", value: "light" },
+                    { label: "Medium (100–199 kg)", value: "medium" },
+                    { label: "Heavy (200+ kg)", value: "heavy" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => { setWeightFilter(option.value); setWeightMin(""); setWeightMax(""); setPage(1); }}
+                      className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${
+                        weightFilter === option.value && !weightMin && !weightMax
+                          ? "bg-emerald-50 font-semibold text-emerald-700"
+                          : "text-zinc-600 hover:bg-zinc-50"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                  <div className="flex gap-2 px-3 py-2">
+                    <input type="number" placeholder="Min kg" min="0" value={weightMin}
+                      onChange={(e) => { setWeightMin(e.target.value); setWeightFilter("all"); setPage(1); }}
+                      className="w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm text-zinc-700 outline-none focus:border-emerald-500"
+                    />
+                    <input type="number" placeholder="Max kg" min="0" value={weightMax}
+                      onChange={(e) => { setWeightMax(e.target.value); setWeightFilter("all"); setPage(1); }}
+                      className="w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm text-zinc-700 outline-none focus:border-emerald-500"
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -418,6 +483,13 @@ export default function IncomingLotsTable() {
                 <th className="px-4 py-5 text-left text-sm font-semibold text-zinc-900">
                   <div className="flex items-center gap-2">
                     Grade
+                    <ArrowUpDown className="size-4 text-zinc-300" />
+                  </div>
+                </th>
+
+                <th className="px-4 py-5 text-left text-sm font-semibold text-zinc-900">
+                  <div className="flex items-center gap-2">
+                    Weight
                     <ArrowUpDown className="size-4 text-zinc-300" />
                   </div>
                 </th>
@@ -465,6 +537,10 @@ export default function IncomingLotsTable() {
                     {lot.qc_inspections?.[0]?.ai_quality_score != null
                       ? `${lot.qc_inspections[0].ai_quality_score}/100`
                       : "-"}
+                  </td>
+
+                  <td className="px-4 py-5 text-sm font-medium text-zinc-700">
+                    {lot.quantity_kg} kg
                   </td>
 
                   <td className="px-4 py-5 text-sm font-medium text-zinc-700">

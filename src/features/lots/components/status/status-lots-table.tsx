@@ -20,6 +20,11 @@ export default function StatusLotsTable({ lots, isLoading, config }: Props) {
   const [supplierFilter, setSupplierFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
   const [gradeFilter, setGradeFilter] = useState("all");
+  const [gradeMin, setGradeMin] = useState("");
+  const [gradeMax, setGradeMax] = useState("");
+  const [weightFilter, setWeightFilter] = useState("all");
+  const [weightMin, setWeightMin] = useState("");
+  const [weightMax, setWeightMax] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
 
@@ -54,9 +59,26 @@ export default function StatusLotsTable({ lots, isLoading, config }: Props) {
         if (gradeFilter === "medium" && (score < 60 || score >= 80)) return false;
         if (gradeFilter === "low" && score >= 60) return false;
       }
+      if (gradeMin || gradeMax) {
+        const score = lot.qc_inspections?.[0]?.ai_quality_score;
+        if (score == null) return false;
+        if (gradeMin && score < Number(gradeMin)) return false;
+        if (gradeMax && score > Number(gradeMax)) return false;
+      }
+      if (weightFilter !== "all") {
+        const w = Number(lot.quantity_kg);
+        if (weightFilter === "light" && w >= 100) return false;
+        if (weightFilter === "medium" && (w < 100 || w >= 200)) return false;
+        if (weightFilter === "heavy" && w < 200) return false;
+      }
+      if (weightMin || weightMax) {
+        const w = Number(lot.quantity_kg);
+        if (weightMin && w < Number(weightMin)) return false;
+        if (weightMax && w > Number(weightMax)) return false;
+      }
       return true;
     });
-  }, [lots, materialFilter, supplierFilter, dateFilter, gradeFilter]);
+  }, [lots, materialFilter, supplierFilter, dateFilter, gradeFilter, gradeMin, gradeMax, weightFilter, weightMin, weightMax]);
 
   const totalPages = Math.max(1, Math.ceil(filteredLots.length / PAGE_SIZE));
   const paginatedLots = filteredLots.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -108,10 +130,33 @@ export default function StatusLotsTable({ lots, isLoading, config }: Props) {
 
                 <p className="mt-2 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400">Grade</p>
                 {[{ label: "All Grades", value: "all" }, { label: "High (80+)", value: "high" }, { label: "Medium (60–79)", value: "medium" }, { label: "Low (<60)", value: "low" }].map((o) => (
-                  <button key={o.value} type="button" onClick={() => { setGradeFilter(o.value); setPage(1); }}
-                    className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${gradeFilter === o.value ? "bg-emerald-50 font-semibold text-emerald-700" : "text-zinc-600 hover:bg-zinc-50"}`}
+                  <button key={o.value} type="button" onClick={() => { setGradeFilter(o.value); setGradeMin(""); setGradeMax(""); setPage(1); }}
+                    className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${gradeFilter === o.value && !gradeMin && !gradeMax ? "bg-emerald-50 font-semibold text-emerald-700" : "text-zinc-600 hover:bg-zinc-50"}`}
                   >{o.label}</button>
                 ))}
+                <div className="flex gap-2 px-3 py-2">
+                  <input type="number" placeholder="Min" min="0" max="100" value={gradeMin}
+                    onChange={(e) => { setGradeMin(e.target.value); setGradeFilter("all"); setPage(1); }}
+                    className="w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm text-zinc-700 outline-none focus:border-emerald-500" />
+                  <input type="number" placeholder="Max" min="0" max="100" value={gradeMax}
+                    onChange={(e) => { setGradeMax(e.target.value); setGradeFilter("all"); setPage(1); }}
+                    className="w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm text-zinc-700 outline-none focus:border-emerald-500" />
+                </div>
+
+                <p className="mt-2 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400">Weight</p>
+                {[{ label: "All Weights", value: "all" }, { label: "Light (<100 kg)", value: "light" }, { label: "Medium (100–199 kg)", value: "medium" }, { label: "Heavy (200+ kg)", value: "heavy" }].map((o) => (
+                  <button key={o.value} type="button" onClick={() => { setWeightFilter(o.value); setWeightMin(""); setWeightMax(""); setPage(1); }}
+                    className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${weightFilter === o.value && !weightMin && !weightMax ? "bg-emerald-50 font-semibold text-emerald-700" : "text-zinc-600 hover:bg-zinc-50"}`}
+                  >{o.label}</button>
+                ))}
+                <div className="flex gap-2 px-3 py-2">
+                  <input type="number" placeholder="Min kg" min="0" value={weightMin}
+                    onChange={(e) => { setWeightMin(e.target.value); setWeightFilter("all"); setPage(1); }}
+                    className="w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm text-zinc-700 outline-none focus:border-emerald-500" />
+                  <input type="number" placeholder="Max kg" min="0" value={weightMax}
+                    onChange={(e) => { setWeightMax(e.target.value); setWeightFilter("all"); setPage(1); }}
+                    className="w-full rounded-lg border border-zinc-200 px-2 py-1.5 text-sm text-zinc-700 outline-none focus:border-emerald-500" />
+                </div>
               </div>
             </div>
           )}
@@ -123,7 +168,7 @@ export default function StatusLotsTable({ lots, isLoading, config }: Props) {
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-zinc-100">
-                {["Lot ID", "Material", "Grade", "Arrival Date", "Status", "Actions"].map((item) => (
+                {["Lot ID", "Material", "Grade", "Weight", "Arrival Date", "Status", "Actions"].map((item) => (
                   <th key={item} className="px-4 py-5 text-left text-sm font-semibold text-zinc-900">
                     <div className="flex items-center gap-2">{item}<ArrowUpDown className="size-4 text-zinc-300" /></div>
                   </th>
@@ -137,13 +182,14 @@ export default function StatusLotsTable({ lots, isLoading, config }: Props) {
                     <td className="px-4 py-5"><Skeleton className="h-4 w-24" /></td>
                     <td className="px-4 py-5"><Skeleton className="h-4 w-28" /></td>
                     <td className="px-4 py-5"><Skeleton className="h-4 w-16" /></td>
+                    <td className="px-4 py-5"><Skeleton className="h-4 w-16" /></td>
                     <td className="px-4 py-5"><Skeleton className="h-4 w-20" /></td>
                     <td className="px-4 py-5"><Skeleton className="h-6 w-20 rounded-xl" /></td>
                     <td className="px-4 py-5"><Skeleton className="h-4 w-14" /></td>
                   </tr>
                 ))
               ) : filteredLots.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-sm text-zinc-400">No lots found.</td></tr>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-sm text-zinc-400">No lots found.</td></tr>
               ) : (
                 paginatedLots.map((lot, index) => (
                   <tr key={lot.id} className={`border-b border-zinc-100 ${index % 2 === 0 ? "bg-white" : "bg-zinc-50"}`}>
@@ -152,6 +198,7 @@ export default function StatusLotsTable({ lots, isLoading, config }: Props) {
                     <td className="px-4 py-5 text-sm font-medium text-zinc-700">
                       {lot.qc_inspections[0]?.ai_quality_score != null ? `${lot.qc_inspections[0].ai_quality_score}/100` : "-"}
                     </td>
+                    <td className="px-4 py-5 text-sm font-medium text-zinc-700">{lot.quantity_kg} kg</td>
                     <td className="px-4 py-5 text-sm font-medium text-zinc-700">{lot.arrival_date}</td>
                     <td className="px-4 py-5">
                       <div className={`inline-flex items-center rounded-xl px-4 py-1.5 text-sm font-semibold ${config.badgeBg} ${config.badgeText}`}>{config.label}</div>
