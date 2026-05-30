@@ -79,7 +79,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
                 {profile?.email}
               </p>
 
-              {/* <p className="text-xs text-zinc-500">SimaOS Account Role</p> */}
+              <p className="text-xs text-zinc-500 mt-0.5">SimaOS Operator</p>
             </div>
 
             <DropdownDivider />
