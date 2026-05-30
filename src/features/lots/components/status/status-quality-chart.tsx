@@ -13,7 +13,6 @@ type Props = {
 
 export default function StatusQualityChart({ lots }: Props) {
   const [chartGroupBy, setChartGroupBy] = useState<ChartGroupBy>("material");
-  const [chartGradeFilter, setChartGradeFilter] = useState("all");
   const [chartFilterOpen, setChartFilterOpen] = useState(false);
 
   const chartData = useMemo(() => {
@@ -22,10 +21,7 @@ export default function StatusQualityChart({ lots }: Props) {
     for (const lot of lots) {
       const score = lot.qc_inspections?.[0]?.ai_quality_score;
       if (score == null) continue;
-      if (chartGradeFilter === "high" && score < 80) continue;
-      if (chartGradeFilter === "medium" && (score < 50 || score >= 80))
-        continue;
-      if (chartGradeFilter === "low" && score >= 50) continue;
+
       const key =
         chartGroupBy === "material"
           ? lot.material_name
@@ -45,7 +41,7 @@ export default function StatusQualityChart({ lots }: Props) {
         count,
       }),
     );
-  }, [lots, chartGroupBy, chartGradeFilter]);
+  }, [lots, chartGroupBy]);
 
   // const lowest =
   //   chartData.length > 1
@@ -88,24 +84,6 @@ export default function StatusQualityChart({ lots }: Props) {
                     type="button"
                     onClick={() => setChartGroupBy(o.value)}
                     className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${chartGroupBy === o.value ? "bg-emerald-50 font-semibold text-emerald-700" : "text-zinc-600 hover:bg-zinc-50"}`}
-                  >
-                    {o.label}
-                  </button>
-                ))}
-                <p className="mt-2 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                  Grade
-                </p>
-                {[
-                  { label: "All Grades", value: "all" },
-                  { label: "High (80+)", value: "high" },
-                  { label: "Medium (50–79)", value: "medium" },
-                  { label: "Low (<50)", value: "low" },
-                ].map((o) => (
-                  <button
-                    key={o.value}
-                    type="button"
-                    onClick={() => setChartGradeFilter(o.value)}
-                    className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-sm transition ${chartGradeFilter === o.value ? "bg-emerald-50 font-semibold text-emerald-700" : "text-zinc-600 hover:bg-zinc-50"}`}
                   >
                     {o.label}
                   </button>
