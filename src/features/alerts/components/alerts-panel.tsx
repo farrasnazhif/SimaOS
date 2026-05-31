@@ -33,35 +33,40 @@ const severityConfig: Record<
   critical: {
     icon: AlertTriangle,
     color: "text-red-500",
-    bg: "bg-[#FFEDEC]",
+    // bg: "bg-[#FFEDEC]",
+    bg: "bg-white",
     border: "border-red-100",
     label: "Critical Risk",
   },
   high: {
     icon: AlertTriangle,
     color: "text-red-500",
-    bg: "bg-[#FFEDEC]",
+    // bg: "bg-[#FFEDEC]",
+    bg: "bg-white",
     border: "border-red-100",
     label: "Critical Risk",
   },
   warning: {
     icon: CircleDotDashed,
     color: "text-amber-500",
-    bg: "bg-[#FFF0DF]",
+    // bg: "bg-[#FFF0DF]",
+    bg: "bg-white",
     border: "border-amber-100",
     label: "Maintenance",
   },
   medium: {
     icon: CircleDotDashed,
     color: "text-amber-500",
-    bg: "bg-[#FFF0DF]",
+    // bg: "bg-[#FFF0DF]",
+    bg: "bg-white",
     border: "border-amber-100",
     label: "Maintenance",
   },
   low: {
     icon: Lightbulb,
     color: "text-emerald-600",
-    bg: "bg-[#E9F1ED]",
+    // bg: "bg-[#E9F1ED]",
+    bg: "bg-white",
     border: "border-emerald-100",
     label: "Optimization",
   },
@@ -96,7 +101,7 @@ export default function AlertsPanel() {
     return (
       <div className="space-y-5">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="rounded-[28px] border border-zinc-100 p-6">
+          <div key={i} className="rounded-[24px] border border-zinc-100 p-6">
             <Skeleton className="h-5 w-32" />
             <Skeleton className="mt-4 h-5 w-48" />
             <Skeleton className="mt-3 h-4 w-full" />
@@ -125,7 +130,7 @@ export default function AlertsPanel() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Icon className={`size-4 ${config.color}`} />
-                    <h3 className={`text-md font-semibold ${config.color}`}>
+                    <h3 className={`text-sm font-semibold ${config.color}`}>
                       {config.label}
                     </h3>
                   </div>
@@ -134,7 +139,7 @@ export default function AlertsPanel() {
                   </span>
                 </div>
 
-                <h4 className="mt-2 text-lg font-semibold text-zinc-900">
+                <h4 className="mt-2 text-md font-semibold text-zinc-900">
                   {alert.title.includes("—")
                     ? alert.title.split("—")[0].trim()
                     : alert.title}
@@ -146,7 +151,7 @@ export default function AlertsPanel() {
                 )}
 
                 {alert.description && (
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-500">
+                  <p className="mt-2 text-xs leading-relaxed text-zinc-500">
                     {alert.description}
                   </p>
                 )}
@@ -156,13 +161,15 @@ export default function AlertsPanel() {
         </div>
       )}
 
-      <Button
-        onClick={() => setShowArchive(true)}
-        className="mt-6 w-full"
-        leftIcon={Archive}
-      >
-        View Alert Archive
-      </Button>
+      <div className="sticky bottom-0 bg-white pt-4">
+        <Button
+          onClick={() => setShowArchive(true)}
+          className="w-full"
+          leftIcon={Archive}
+        >
+          View Alert Archive
+        </Button>
+      </div>
 
       {/* Resolve confirmation modal */}
       {confirmAlert && (

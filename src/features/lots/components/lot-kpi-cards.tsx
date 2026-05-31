@@ -137,7 +137,7 @@ export default function LotKpiCards() {
             </div>
             <div className="mt-8 flex items-end justify-between">
               <div>
-                <h2 className="text-5xl font-bold tracking-tight text-zinc-900">
+                <h2 className="text-4xl font-semibold tracking-tight text-zinc-900">
                   {item.value}
                 </h2>
                 <p className="mt-3 text-xs text-zinc-500">{item.insight}</p>

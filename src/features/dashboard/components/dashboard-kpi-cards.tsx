@@ -95,7 +95,7 @@ export default function DashboardKpiCards() {
         return (
           <div
             key={item.title}
-            className="rounded-[16px] border-1 border-[#0E8752]/20 bg-white p-5 "
+            className="flex h-full flex-col rounded-[16px] border border-[#0E8752]/20 bg-white p-5"
           >
             <div className="flex items-start gap-4">
               <div
@@ -112,20 +112,23 @@ export default function DashboardKpiCards() {
                 </p>
               </div>
             </div>
-            <div className="mt-8 flex items-end justify-between">
-              <h2 className="text-5xl font-bold tracking-tight text-zinc-900">
+
+            <div className="mt-4">
+              <h2 className="text-4xl font-semibold tracking-tight text-zinc-900">
                 {item.value}
               </h2>
+            </div>
 
-              {item.href !== "/lots" && (
+            {item.href !== "/lots" && (
+              <div className="mt-auto flex justify-end pt-4">
                 <Link
                   href={item.href}
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-50"
+                  className="flex h-12 w-12 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-50"
                 >
                   <ArrowUpRight className="size-5" />
                 </Link>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         );
       })}

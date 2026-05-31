@@ -100,7 +100,7 @@ export default function DashboardPage() {
       <DashboardKpiCards />
 
       <div className="grid grid-cols-12 gap-6">
-        <section className="col-span-12 rounded-[32px] border-1 border-[#0E8752]/20  bg-white p-8 lg:col-span-8">
+        <section className="col-span-12 rounded-[24px] border-1 border-[#0E8752]/20  bg-white p-8 lg:col-span-8">
           <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
             <div>
               <h2 className="text-[24px] font-semibold text-zinc-900">
@@ -121,7 +121,7 @@ export default function DashboardPage() {
               </Button>
 
               {filterOpen && (
-                <div className="absolute right-0 top-12 z-50 w-[190px] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl">
+                <div className="absolute right-0 top-12 z-50 w-[190px] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xl">
                   <div className="p-2">
                     <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                       Status
@@ -227,11 +227,12 @@ export default function DashboardPage() {
                     >
                       <div className="relative flex w-full flex-1 items-end">
                         <div
-                          className={`relative w-full min-h-[8px] rounded-t-2xl transition-all group-hover:opacity-80 ${
+                          className={`relative w-full min-h-[8px] rounded-t-xl transition-all group-hover:opacity-80 ${
                             item.avgScore < 50
-                              ? "bg-red-500"
+                              ? "bg-[#98DEB9]"
+                              // red and amber-500
                               : item.avgScore < 75
-                                ? "bg-amber-500"
+                                ? "bg-[#3BB377]"
                                 : "bg-emerald-600"
                           }`}
                           style={{ height: `${item.avgScore}%` }}
@@ -291,7 +292,7 @@ export default function DashboardPage() {
         </section>
 
         {/* alerts */}
-        <section className="col-span-12 rounded-[32px] border-1 border-[#0E8752]/20 bg-white p-8 lg:col-span-4 ">
+        <section className="col-span-12 rounded-[24px] border-1 border-[#0E8752]/20 bg-white p-8 lg:col-span-4 ">
           <div className="flex items-center justify-between">
             <h2 className="text-[24px] font-semibold text-zinc-900">
               Operational Alerts
