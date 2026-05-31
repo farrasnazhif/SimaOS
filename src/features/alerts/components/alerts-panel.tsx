@@ -33,24 +33,24 @@ const severityConfig: Record<
   critical: {
     icon: AlertTriangle,
     color: "text-red-500",
-    // bg: "bg-[#FFEDEC]",
-    bg: "bg-white",
+    bg: "bg-[#FFEDEC]",
+    // bg: "bg-white",
     border: "border-red-100",
     label: "Critical Risk",
   },
   high: {
     icon: AlertTriangle,
     color: "text-red-500",
-    // bg: "bg-[#FFEDEC]",
-    bg: "bg-white",
+    bg: "bg-[#FFEDEC]",
+    // bg: "bg-white",
     border: "border-red-100",
     label: "Critical Risk",
   },
   warning: {
     icon: CircleDotDashed,
     color: "text-amber-500",
-    // bg: "bg-[#FFF0DF]",
-    bg: "bg-white",
+    bg: "bg-[#FFF0DF]",
+    // bg: "bg-white",
     border: "border-amber-100",
     label: "Maintenance",
   },
@@ -115,7 +115,7 @@ export default function AlertsPanel() {
       {!alerts || alerts.length === 0 ? (
         <p className="text-sm text-zinc-500">No active alerts.</p>
       ) : (
-        <div className="space-y-5 ">
+        <div className=" overflow-y-auto space-y-5 ">
           {alerts.map((alert) => {
             const config = severityConfig[alert.severity] ?? severityConfig.low;
             const Icon = config.icon;
@@ -161,7 +161,7 @@ export default function AlertsPanel() {
         </div>
       )}
 
-      <div className="sticky bottom-0 bg-white pt-4">
+      <div className="mt-auto bg-white pt-4">
         <Button
           onClick={() => setShowArchive(true)}
           className="w-full"

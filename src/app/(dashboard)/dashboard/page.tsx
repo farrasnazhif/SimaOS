@@ -230,8 +230,8 @@ export default function DashboardPage() {
                           className={`relative w-full min-h-[8px] rounded-t-xl transition-all group-hover:opacity-80 ${
                             item.avgScore < 50
                               ? "bg-[#98DEB9]"
-                              // red and amber-500
-                              : item.avgScore < 75
+                              : // red and amber-500
+                                item.avgScore < 75
                                 ? "bg-[#3BB377]"
                                 : "bg-emerald-600"
                           }`}
@@ -253,7 +253,7 @@ export default function DashboardPage() {
                   ))}
                 </div>
                 {/* Y-axis */}
-                <div className="flex flex-col justify-between py-1 text-left text-xs text-zinc-400 ml-4">
+                <div className="flex flex-col justify-between py-1 pb-10 text-left text-xs text-zinc-400 ml-4">
                   <span>100</span>
                   <span>75</span>
                   <span>50</span>
@@ -299,7 +299,7 @@ export default function DashboardPage() {
             </h2>
           </div>
 
-          <div className="mt-4">
+          <div className="mt-4 h-[700px] flex flex-col">
             <AlertsPanel />
           </div>
         </section>

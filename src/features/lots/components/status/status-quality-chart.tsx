@@ -130,16 +130,16 @@ export default function StatusQualityChart({ lots }: Props) {
                         </div>
                       </div>
                     </div>
-                    <p className="text-center text-sm font-medium text-zinc-700">
+                    <p className="text-center text-xs font-medium text-zinc-700">
                       {item.label}
                     </p>
-                    <p className="text-xs text-zinc-400">
+                    <p className="text-xs text-zinc-400 leading-none">
                       {item.count} {item.count === 1 ? "lot" : "lots"}
                     </p>
                   </div>
                 ))}
               </div>
-              <div className="flex flex-col justify-between py-1 text-left text-xs text-zinc-400 ml-4">
+              <div className="flex flex-col justify-between py-1 pb-10 text-left text-xs text-zinc-400 ml-4">
                 <span>100</span>
                 <span>75</span>
                 <span>50</span>
