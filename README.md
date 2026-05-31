@@ -32,3 +32,10 @@ OPENAI_API_KEY=
 OPENAI_COPILOT_MODEL=gpt-4.1-mini
 OPENAI_VISION_MODEL=gpt-4.1-mini
 ```
+
+## Account
+
+You can use this account to be the simaOS Operator.
+
+operator@simaos.com
+simaos123

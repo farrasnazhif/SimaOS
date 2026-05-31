@@ -259,9 +259,9 @@ export default function QualityTrendsChart() {
             Switching from{" "}
             <span className="font-medium text-zinc-700">{lowest.label}</span> to{" "}
             <span className="font-medium text-zinc-700">{highest.label}</span>{" "}
-            could improve average quality performance based on current historical
-            inspection results. Consider reviewing sourcing strategies and intake
-            allocation to reduce quality variance.
+            could improve average quality performance based on current
+            historical inspection results. Consider reviewing sourcing
+            strategies and intake allocation to reduce quality variance.
           </p>
         </div>
       )}
