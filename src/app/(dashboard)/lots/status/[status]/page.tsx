@@ -1,4 +1,4 @@
-import LotStatusDetailPage from "@/features/lots/components/lot-status-detail-page";
+import LotStatusDetailPage from "@/features/lots/views/lot-status-detail-page";
 
 export default async function LotStatusPage({ params }: { params: Promise<{ status: string }> }) {
   const { status } = await params;

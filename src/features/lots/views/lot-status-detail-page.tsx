@@ -3,10 +3,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import Breadcrumb from "@/components/ui/breadcrumb";
-import StatusLotsTable from "./status/status-lots-table";
-import StatusQualityChart from "./status/status-quality-chart";
-import StatusInfoPanel from "./status/status-info-panel";
-import { LotRow, StatusConfig } from "./status/types";
+import StatusLotsTable from "../components/status/status-lots-table";
+import StatusQualityChart from "../components/status/status-quality-chart";
+import StatusInfoPanel from "../components/status/status-info-panel";
+import { LotRow, StatusConfig } from "../components/status/types";
 
 const STATUS_CONFIG: Record<string, StatusConfig> = {
   in_qc: { label: "Awaiting QC", heading: "Pending QC", description: "Lots pending quality check.", badgeBg: "bg-amber-100/70", badgeText: "text-amber-600" },
