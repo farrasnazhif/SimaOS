@@ -6,7 +6,6 @@ import {
   Lightbulb,
   RotateCcw,
   Archive,
-  X,
   CircleDotDashed,
 } from "lucide-react";
 import {
@@ -19,6 +18,8 @@ import {
 import { toast } from "sonner";
 import Skeleton from "@/components/ui/skeleton";
 import Button from "@/components/ui/buttons/button";
+import Modal from "@/components/ui/modal";
+import EmptyState from "@/components/ui/empty-state";
 
 const severityConfig: Record<
   string,
@@ -113,7 +114,7 @@ export default function AlertsPanel() {
   return (
     <>
       {!alerts || alerts.length === 0 ? (
-        <p className="text-sm text-zinc-500">No active alerts.</p>
+        <EmptyState message="No active alerts." />
       ) : (
         <div className=" overflow-y-auto space-y-5 ">
           {alerts.map((alert) => {
@@ -172,52 +173,44 @@ export default function AlertsPanel() {
       </div>
 
       {/* Resolve confirmation modal */}
-      {confirmAlert && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center"
-          onClick={() => setConfirmAlert(null)}
-        >
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
-          <div
-            className="relative w-full max-w-sm rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-semibold text-zinc-900">
-              Resolve Alert
-            </h3>
-            <p className="mt-2 text-sm text-zinc-500">
-              Are you sure you want to resolve this alert?
+      <Modal
+        open={!!confirmAlert}
+        onClose={() => setConfirmAlert(null)}
+        title="Resolve Alert"
+        description="Are you sure you want to resolve this alert?"
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setConfirmAlert(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleResolve}
+              isLoading={resolve.isPending}
+            >
+              Resolve
+            </Button>
+          </>
+        }
+      >
+        {confirmAlert && (
+          <div className="mt-3 rounded-lg border border-zinc-100 bg-zinc-50 p-3">
+            <p className="text-sm font-medium text-zinc-800">
+              {confirmAlert.title}
             </p>
-            <div className="mt-3 rounded-lg border border-zinc-100 bg-zinc-50 p-3">
-              <p className="text-sm font-medium text-zinc-800">
-                {confirmAlert.title}
+            {confirmAlert.description && (
+              <p className="mt-1 text-xs text-zinc-500">
+                {confirmAlert.description}
               </p>
-              {confirmAlert.description && (
-                <p className="mt-1 text-xs text-zinc-500">
-                  {confirmAlert.description}
-                </p>
-              )}
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setConfirmAlert(null)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleResolve}
-                isLoading={resolve.isPending}
-              >
-                Resolve
-              </Button>
-            </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
 
       {/* Archive modal */}
       {showArchive && <ArchiveModal onClose={() => setShowArchive(false)} />}
@@ -230,77 +223,54 @@ function ArchiveModal({ onClose }: { onClose: () => void }) {
   const restore = useRestoreAlertMutation();
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center"
-      onClick={onClose}
-    >
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
-      <div
-        className="relative w-full max-w-md max-h-[70vh] flex flex-col rounded-2xl border border-zinc-200 bg-white shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4">
-          <h3 className="text-lg font-semibold text-zinc-900">
-            Archived Alerts
-          </h3>
-          <button
-            onClick={onClose}
-            className="text-sm text-zinc-400 hover:text-zinc-600"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-4">
-          {isLoading ? (
-            <div className="space-y-3">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="rounded-lg border border-zinc-200 p-3">
-                  <Skeleton className="h-4 w-48" />
-                  <Skeleton className="mt-2 h-3 w-full" />
-                </div>
-              ))}
-            </div>
-          ) : !archived || archived.length === 0 ? (
-            <p className="py-8 text-center text-sm text-zinc-400">
-              No archived alerts.
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {archived.map((alert) => (
-                <div
-                  key={alert.id}
-                  className="flex items-start justify-between rounded-lg border border-zinc-200 bg-zinc-50 p-3"
-                >
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-zinc-700">
-                      {alert.title}
+    <Modal open onClose={onClose} title="Archived Alerts" size="md">
+      <div className="mt-4 max-h-[50vh] overflow-y-auto">
+        {isLoading ? (
+          <div className="space-y-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="rounded-lg border border-zinc-200 p-3">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="mt-2 h-3 w-full" />
+              </div>
+            ))}
+          </div>
+        ) : !archived || archived.length === 0 ? (
+          <EmptyState message="No archived alerts." className="py-8 text-center text-zinc-400" />
+        ) : (
+          <div className="space-y-3">
+            {archived.map((alert) => (
+              <div
+                key={alert.id}
+                className="flex items-start justify-between rounded-lg border border-zinc-200 bg-zinc-50 p-3"
+              >
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-zinc-700">
+                    {alert.title}
+                  </p>
+                  {alert.description && (
+                    <p className="mt-1 text-xs text-zinc-400">
+                      {alert.description}
                     </p>
-                    {alert.description && (
-                      <p className="mt-1 text-xs text-zinc-400">
-                        {alert.description}
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => {
-                      toast.promise(restore.mutateAsync(alert.id), {
-                        loading: "Restoring...",
-                        success: "Alert restored.",
-                        error: "Failed.",
-                      });
-                    }}
-                    className="ml-3 flex shrink-0 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs font-medium text-zinc-600 transition hover:bg-emerald-50 hover:text-emerald-700"
-                  >
-                    <RotateCcw className="size-3" />
-                    Restore
-                  </button>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <button
+                  onClick={() => {
+                    toast.promise(restore.mutateAsync(alert.id), {
+                      loading: "Restoring...",
+                      success: "Alert restored.",
+                      error: "Failed.",
+                    });
+                  }}
+                  className="ml-3 flex shrink-0 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs font-medium text-zinc-600 transition hover:bg-emerald-50 hover:text-emerald-700"
+                >
+                  <RotateCcw className="size-3" />
+                  Restore
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    </div>
+    </Modal>
   );
 }

@@ -13,55 +13,11 @@ import {
 
 import Button from "@/components/ui/buttons/button";
 import Skeleton from "@/components/ui/skeleton";
+import StatusBadge from "@/components/ui/status-badge";
 
 import { useLotsQuery } from "../queries/lots-queries";
 
 const PAGE_SIZE = 9;
-
-const statusConfig: Record<
-  string,
-  {
-    label: string;
-    className: string;
-  }
-> = {
-  approved: {
-    label: "Approved",
-    className: "bg-emerald-100/70 text-emerald-700",
-  },
-
-  in_qc: {
-    label: "Awaiting QC",
-    className: "bg-amber-100/70 text-amber-600",
-  },
-
-  rejected: {
-    label: "Rejected",
-    className: "bg-red-100/70 text-red-500",
-  },
-
-  in_production: {
-    label: "In Production",
-    className: "bg-blue-100/70 text-blue-700",
-  },
-
-  arriving: {
-    label: "Arriving",
-    className: "bg-zinc-100 text-zinc-600",
-  },
-};
-
-function StatusBadge({ status }: { status: string }) {
-  const config = statusConfig[status] ?? statusConfig.arriving;
-
-  return (
-    <div
-      className={`inline-flex items-center rounded-xl px-4 py-1.5 text-sm font-semibold ${config.className}`}
-    >
-      {config.label}
-    </div>
-  );
-}
 
 export default function IncomingLotsTable() {
   const { data: lots, isLoading, error } = useLotsQuery();

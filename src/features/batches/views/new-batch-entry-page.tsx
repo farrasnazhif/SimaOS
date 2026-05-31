@@ -13,6 +13,7 @@ import {
 import Button from "@/components/ui/buttons/button";
 import Input from "@/components/ui/input";
 import Select from "@/components/ui/select";
+import PageHeader from "@/components/ui/page-header";
 import { useQc } from "@/features/qc/hooks/use-qc";
 import { cn } from "@/lib/utils";
 
@@ -158,15 +159,10 @@ export default function NewBatchEntryPage() {
   return (
     <main className="">
       <div className="mx-auto max-w-7xl space-y-6">
-        <div>
-          <h1 className="text-4xl font-semibold text-zinc-900">
-            New Batch Entry
-          </h1>
-
-          <p className="mt-1 text-base text-zinc-700">
-            Fill in the manufacturing parameters below.
-          </p>
-        </div>
+        <PageHeader
+          title="New Batch Entry"
+          description="Fill in the manufacturing parameters below."
+        />
 
         <div className="grid gap-6 xl:grid-cols-[420px_minmax(0,1fr)]">
           <div className="space-y-6">

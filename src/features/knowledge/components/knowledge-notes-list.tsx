@@ -1,12 +1,13 @@
 "use client";
 
 import { useKnowledgeNotesQuery } from "../queries/knowledge-queries";
+import EmptyState from "@/components/ui/empty-state";
 
 export default function KnowledgeNotesList({ lotId }: { lotId: string }) {
   const { data: notes, isLoading } = useKnowledgeNotesQuery(lotId);
 
   if (isLoading) return <p className="text-sm text-zinc-400">Loading notes...</p>;
-  if (!notes || notes.length === 0) return <p className="text-sm text-zinc-400">No knowledge notes yet.</p>;
+  if (!notes || notes.length === 0) return <EmptyState message="No knowledge notes yet." className="text-zinc-400" />;
 
   return (
     <div className="space-y-2">

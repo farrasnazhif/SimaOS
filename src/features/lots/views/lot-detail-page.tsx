@@ -20,36 +20,8 @@ import Breadcrumb from "@/components/ui/breadcrumb";
 import Skeleton from "@/components/ui/skeleton";
 import Button from "@/components/ui/buttons/button";
 import IconButton from "@/components/ui/buttons/icon-button";
-
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { bg: string; text: string; label: string }> = {
-    in_qc: { bg: "bg-amber-100", text: "text-amber-600", label: "Awaiting QC" },
-    approved: {
-      bg: "bg-emerald-100",
-      text: "text-emerald-600",
-      label: "Approved",
-    },
-    rejected: { bg: "bg-red-100", text: "text-red-600", label: "Rejected" },
-    in_production: {
-      bg: "bg-blue-100",
-      text: "text-blue-600",
-      label: "In Production",
-    },
-    arriving: { bg: "bg-zinc-100", text: "text-zinc-600", label: "Arriving" },
-  };
-  const s = map[status] ?? {
-    bg: "bg-zinc-100",
-    text: "text-zinc-600",
-    label: status,
-  };
-  return (
-    <div
-      className={`mt-2 inline-flex rounded-xl px-4 py-1.5 text-sm font-semibold ${s.bg} ${s.text}`}
-    >
-      {s.label}
-    </div>
-  );
-}
+import StatusBadge from "@/components/ui/status-badge";
+import Modal from "@/components/ui/modal";
 
 function TimelineSection({
   events,
@@ -166,22 +138,14 @@ function LotActions({
     );
   }
 
-  const deleteModal = showDeleteConfirm && (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center"
-      onClick={() => setShowDeleteConfirm(false)}
-    >
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
-      <div
-        className="relative w-full max-w-sm rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="text-lg font-semibold text-zinc-900">Delete Lot</h3>
-        <p className="mt-2 text-sm text-zinc-500">
-          Are you sure you want to delete this lot? This action cannot be
-          undone.
-        </p>
-        <div className="mt-6 flex justify-end gap-3">
+  const deleteModal = (
+    <Modal
+      open={showDeleteConfirm}
+      onClose={() => setShowDeleteConfirm(false)}
+      title="Delete Lot"
+      description="Are you sure you want to delete this lot? This action cannot be undone."
+      footer={
+        <>
           <Button
             variant="secondary"
             size="sm"
@@ -198,9 +162,9 @@ function LotActions({
           >
             Delete
           </Button>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 
   if (!inspectionId)
@@ -356,7 +320,7 @@ export default function LotDetailPage({ lotId }: { lotId: string }) {
 
               <div>
                 <p className="text-sm text-zinc-500">Status</p>
-                <StatusBadge status={lot.status} />
+                <StatusBadge status={lot.status} className="mt-2" />
               </div>
 
               <div>

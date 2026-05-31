@@ -4,6 +4,8 @@ import * as React from "react";
 import { Lightbulb, ListFilter } from "lucide-react";
 
 import Button from "@/components/ui/buttons/button";
+import PageHeader from "@/components/ui/page-header";
+import Card from "@/components/ui/card";
 import AlertsPanel from "@/features/alerts/components/alerts-panel";
 import { useLotsQuery, Lot } from "@/features/lots/queries/lots-queries";
 import DashboardKpiCards from "@/features/dashboard/components/dashboard-kpi-cards";
@@ -89,18 +91,15 @@ export default function DashboardView() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-4xl font-semibold text-zinc-900">Dashboard</h1>
-        <p className="mt-1 text-base text-zinc-600">
-          Track inventory status, quality trends, and critical operational
-          alerts.
-        </p>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        description="Track inventory status, quality trends, and critical operational alerts."
+      />
 
       <DashboardKpiCards />
 
       <div className="grid grid-cols-12 gap-6">
-        <section className="col-span-12 rounded-[24px] border-1 border-[#0E8752]/20  bg-white p-8 lg:col-span-8">
+        <Card className="col-span-12 lg:col-span-8">
           <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
             <div>
               <h2 className="text-[24px] font-semibold text-zinc-900">
@@ -289,10 +288,10 @@ export default function DashboardView() {
               </p>
             </div>
           )}
-        </section>
+        </Card>
 
         {/* alerts */}
-        <section className="col-span-12 rounded-[24px] border-1 border-[#0E8752]/20 bg-white p-8 lg:col-span-4 ">
+        <Card className="col-span-12 lg:col-span-4">
           <div className="flex items-center justify-between">
             <h2 className="text-[24px] font-semibold text-zinc-900">
               Operational Alerts
@@ -302,7 +301,7 @@ export default function DashboardView() {
           <div className="mt-4 h-[700px] flex flex-col">
             <AlertsPanel />
           </div>
-        </section>
+        </Card>
       </div>
     </div>
   );
