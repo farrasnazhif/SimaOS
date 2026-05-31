@@ -228,10 +228,10 @@ export default function DashboardView() {
                         <div
                           className={`relative w-full min-h-[8px] rounded-t-xl transition-all group-hover:opacity-80 ${
                             item.avgScore < 50
-                              ? "bg-[#98DEB9]"
+                              ? "bg-red-500"
                               : // red and amber-500
                                 item.avgScore < 75
-                                ? "bg-[#3BB377]"
+                                ? "bg-amber-500"
                                 : "bg-emerald-600"
                           }`}
                           style={{ height: `${item.avgScore}%` }}
